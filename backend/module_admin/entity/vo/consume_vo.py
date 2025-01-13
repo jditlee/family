@@ -60,4 +60,4 @@ class DeleteConsumeModel(BaseModel):
     删除通知公告模型
     """
 
-    ids: str = Field(description='需要删除的公告ID')
+    ids: str = Field(description='需要删除的ID列表')

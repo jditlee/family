@@ -9,7 +9,7 @@ from utils.common_util import SqlalchemyUtil
 
 class ConsumeService:
     """
-    通知公告管理模块服务层
+    开支记录管理模块服务层
     """
 
     @classmethod
@@ -17,7 +17,7 @@ class ConsumeService:
             cls, query_db: AsyncSession, query_object: ConsumePageQueryModel, is_page: bool = True
     ):
         """
-        获取通知公告列表信息service
+        获取开支记录列表信息service
 
         :param query_db: orm对象
         :param query_object: 查询参数对象
@@ -48,7 +48,7 @@ class ConsumeService:
     @classmethod
     async def edit_consume_services(cls, query_db: AsyncSession, page_object: ConsumeModel):
         """
-        编辑通知公告信息service
+        编辑开支记录信息service
 
         :param query_db: orm对象
         :param page_object: 编辑开支记录对象
@@ -70,7 +70,7 @@ class ConsumeService:
     @classmethod
     async def delete_consume_services(cls, query_db: AsyncSession, page_object: DeleteConsumeModel):
         """
-        删除通知公告信息service
+        删除开支记录信息service
 
         :param query_db: orm对象
         :param page_object: 删除开支记录对象
@@ -92,7 +92,7 @@ class ConsumeService:
     @classmethod
     async def consume_detail_services(cls, query_db: AsyncSession, id: int):
         """
-        获取通知公告详细信息service
+        获取开支记录详细信息service
 
         :param query_db: orm对象
         :param id: 开支记录id

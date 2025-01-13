@@ -23,6 +23,7 @@ from module_admin.controller.role_controller import roleController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.user_controller import userController
 from module_admin.controller.consume_controller import consumeController
+from module_admin.controller.income_controller import incomeController
 from sub_applications.handle import handle_sub_applications
 from utils.common_util import worship
 from utils.log_util import logger
@@ -59,7 +60,6 @@ handle_middleware(app)
 # 加载全局异常处理方法
 handle_exception(app)
 
-
 # 加载路由列表
 controller_list = [
     {'router': loginController, 'tags': ['登录模块']},
@@ -79,6 +79,7 @@ controller_list = [
     {'router': cacheController, 'tags': ['系统监控-缓存监控']},
     {'router': commonController, 'tags': ['通用模块']},
     {'router': consumeController, 'tags': ['小金库-开支记录管理']},
+    {'router': incomeController, 'tags': ['小金库-收入记录管理']},
 ]
 
 for controller in controller_list:

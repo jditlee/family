@@ -33,7 +33,7 @@ class ConsumeDao:
         :param db: orm对象
         :param query_object: 查询参数对象
         :param is_page: 是否开启分页
-        :return: 通知公告列表信息对象
+        :return: 开支记录列表信息对象
         """
         query = (
             select(Consume)
@@ -43,7 +43,6 @@ class ConsumeDao:
                 Consume.location.like(f'%{query_object.location}%') if query_object.location else True,
                 Consume.tags.like(f'%{query_object.tags}%') if query_object.tags else True,
                 Consume.user_name.like(f'%{query_object.user_name}%') if query_object.user_name else True,
-                Consume.create_by.like(f'%{query_object.create_by}%') if query_object.create_by else True,
                 Consume.type_id == query_object.type_id if query_object.type_id else True,
                 Consume.currency == query_object.currency if query_object.currency else True,
                 Consume.payment_id == query_object.payment_id if query_object.payment_id else True,
@@ -69,7 +68,7 @@ class ConsumeDao:
     @classmethod
     async def add_consume_dao(cls, db: AsyncSession, consume: ConsumeModel):
         """
-        新增通知公告数据库操作
+        新增开支记录数据库操作
 
         :param db: orm对象
         :param consume: 开支记录对象
@@ -84,7 +83,7 @@ class ConsumeDao:
     @classmethod
     async def edit_consume_dao(cls, db: AsyncSession, consume: dict):
         """
-        编辑通知公告数据库操作
+        编辑开支记录数据库操作
 
         :param db: orm对象
         :param consume: 需要更新的开支记录字典
@@ -95,7 +94,7 @@ class ConsumeDao:
     @classmethod
     async def delete_consume_dao(cls, db: AsyncSession, consume: ConsumeModel):
         """
-        删除通知公告数据库操作
+        删除开支记录数据库操作
 
         :param db: orm对象
         :param consume: 开支记录对象
