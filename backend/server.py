@@ -24,6 +24,9 @@ from module_admin.controller.server_controller import serverController
 from module_admin.controller.user_controller import userController
 from module_admin.controller.consume_controller import consumeController
 from module_admin.controller.income_controller import incomeController
+from module_admin.controller.account_finance_controller import account_financeController
+from module_admin.controller.account_transactions_controller import account_transactionsController
+from module_admin.controller.account_fund_changes_controller import account_fund_changesController
 from sub_applications.handle import handle_sub_applications
 from utils.common_util import worship
 from utils.log_util import logger
@@ -80,6 +83,9 @@ controller_list = [
     {'router': commonController, 'tags': ['通用模块']},
     {'router': consumeController, 'tags': ['小金库-开支记录管理']},
     {'router': incomeController, 'tags': ['小金库-收入记录管理']},
+    {'router': account_financeController, 'tags': ['小金库-账户记录管理']},
+    {'router': account_transactionsController, 'tags': ['小金库-账户流水记录管理']},
+    {'router': account_fund_changesController, 'tags': ['小金库-账户资金变动记录管理']},
 ]
 
 for controller in controller_list:
