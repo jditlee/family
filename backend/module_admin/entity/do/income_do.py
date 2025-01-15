@@ -11,10 +11,10 @@ create table income
     type_id        bigint                    null comment '收入类型id，关联字典表收入类型(工资，奖金，分红)',
     detail         varchar(1024)             null comment '收入明细',
     amount         decimal(15, 2)            not null comment '收入金额',
-    currency       varchar(10) default 'CNY' not null comment '收入金额的货币类型',
+    currency       int         default 0  not null comment '收入金额的货币类型',
     payment_method bigint                    null comment '支付方式，关联字典表（0现金、1银行卡、2微信、3支付宝等）',
     user_id        bigint                    null comment '收入人id，关联用户表主键',
-    time           datetime                  not null comment '收入时间',
+    income_time    datetime                  not null comment '收入时间',
     year           int                       not null comment '收入年份',
     month          int                       not null comment '收入月份',
     source_id      bigint                    null comment '收入来源id，关联字典表收入来源（公司，店铺，某人，项目）',
@@ -33,7 +33,7 @@ create table income
     type_id = Column(Integer, comment='收入类型id，关联字典表收入类型(工资，奖金，分红)')
     detail = Column(String(1024), comment='收入明细')
     amount = Column(Numeric(15, 2), nullable=False, comment='收入金额')
-    currency = Column(String(10), default='CNY', nullable=False, comment='收入金额的货币类型')
+    currency = Column(Integer, default=0, nullable=False, comment='收入金额的货币类型')
     payment_method = Column(Integer, comment='支付方式，关联字典表（0现金、1银行卡、2微信、3支付宝等）')
     user_id = Column(Integer, comment='收入人id，关联用户表主键')
     income_time = Column(DateTime, nullable=False, comment='收入时间')
