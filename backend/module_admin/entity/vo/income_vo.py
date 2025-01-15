@@ -16,7 +16,7 @@ class IncomeModel(BaseModel):
     type_id: Optional[int] = Field(None, description='收入类型id，关联字典表收入类型(工资，奖金，分红)')
     detail: Optional[str] = Field(None, max_length=1024, description='收入明细')
     amount: Optional[Decimal] = Field(None, nullable=False, description='收入金额')
-    currency: Optional[int] = Field(0, max_length=10, description='收入金额的货币类型')
+    currency: Optional[int] = Field(0,  description='收入金额的货币类型')
     payment_method: Optional[int] = Field(None, description='支付方式，关联字典表（0现金、1银行卡、2微信、3支付宝等）')
     user_id: Optional[int] = Field(None, description='收入人id，关联用户表主键')
     income_time: Optional[datetime] = Field(None, description='收入时间')
