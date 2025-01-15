@@ -14,7 +14,7 @@ class Consume(Base):
     detail       varchar(1024)             null comment '消费明细',
     amount       decimal(15, 2)            null comment '消费金额，支持更高精度',
     category     varchar(255)              null comment '消费类别的子分类',
-    currency     varchar(10) default 'CNY' null comment '消费金额的货币类型',
+    currency     int         default 0  null comment '消费金额的货币类型',
     payment_id   bigint                    null comment '支付方式，关联字典表（0现金、1银行卡、2微信、3支付宝等）',
     status       bigint      default 0     null comment '消费状态，关联字典表（0completed（完成）、1pending（待处理）、2installment（分期）等）',
     location     varchar(255)              null comment '消费发生的地点',
@@ -40,7 +40,7 @@ class Consume(Base):
     detail = Column(String(1024), comment='消费明细')
     amount = Column(Numeric(15, 2), nullable=False, comment='消费金额，支持更高精度')
     category = Column(String(255), comment='消费类别的子分类')
-    currency = Column(String(10), default='CNY', comment='消费金额的货币类型')
+    currency = Column(Integer, default=0, comment='消费金额的货币类型')
     payment_id = Column(Integer, comment='支付方式，关联字典表（0现金、1银行卡、2微信、3支付宝等）')
     status = Column(Integer, default=0, comment='消费状态，关联字典表（0（完成）、1（待处理）、2（分期）等）')
     location = Column(String(255), comment='消费发生的地点')
