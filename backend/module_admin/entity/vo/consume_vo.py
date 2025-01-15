@@ -17,7 +17,7 @@ class ConsumeModel(BaseModel):
     detail: Optional[str] = Field(None, max_length=1024, description='消费明细')
     amount: Optional[Decimal] = Field(None, description='消费金额，支持更高精度')
     category: Optional[str] = Field(None, max_length=255, description='消费类别的子分类')
-    currency: Optional[int] = Field(0, max_length=10, description='消费金额的货币类型')
+    currency: Optional[int] = Field(0, description='消费金额的货币类型')
     payment_id: Optional[int] = Field(None, description='支付方式，关联字典表（0现金、1银行卡、2微信、3支付宝等）')
     status: Optional[int] = Field(0, description='消费状态，关联字典表（0（完成）、1（待处理）、2（分期）等）')
     location: Optional[str] = Field(None, max_length=255, description='消费发生的地点')
