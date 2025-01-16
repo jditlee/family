@@ -25,7 +25,7 @@ from module_admin.entity.vo.user_vo import (
     UserProfileModel,
     UserRoleModel,
     UserRoleQueryModel,
-    UserRoleResponseModel,
+    UserRoleResponseModel, UserNameResponsePageQueryModel,
 )
 from module_admin.service.config_service import ConfigService
 from module_admin.service.dept_service import DeptService
@@ -43,7 +43,7 @@ class UserService:
 
     @classmethod
     async def get_user_list_services(
-        cls, query_db: AsyncSession, query_object: UserPageQueryModel, data_scope_sql: str, is_page: bool = False
+            cls, query_db: AsyncSession, query_object: UserPageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         获取用户列表信息service
@@ -68,6 +68,19 @@ class UserService:
                 user_list_result = [{**row[0], 'dept': row[1]} for row in query_result]
 
         return user_list_result
+
+    @classmethod
+    async def get_user_name_list_services(
+            cls, query_db: AsyncSession, query_object: UserNameResponsePageQueryModel, is_page: bool = True
+    ):
+        """
+        获取用户名称列表service
+
+        :param query_db: orm对象
+        :return: 用户名称列表对象
+        """
+        query_result = await UserDao.get_user_name_list(query_db, query_object, is_page)
+        return query_result
 
     @classmethod
     async def check_user_allowed_services(cls, check_user: UserModel):
@@ -343,14 +356,14 @@ class UserService:
 
     @classmethod
     async def batch_import_user_services(
-        cls,
-        request: Request,
-        query_db: AsyncSession,
-        file: UploadFile,
-        update_support: bool,
-        current_user: CurrentUserModel,
-        user_data_scope_sql: str,
-        dept_data_scope_sql: str,
+            cls,
+            request: Request,
+            query_db: AsyncSession,
+            file: UploadFile,
+            update_support: bool,
+            current_user: CurrentUserModel,
+            user_data_scope_sql: str,
+            dept_data_scope_sql: str,
     ):
         """
         批量导入用户service

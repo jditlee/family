@@ -90,6 +90,27 @@ class UserModel(BaseModel):
         self.get_phonenumber()
 
 
+class UserNameResponseModel(BaseModel):
+    """
+    用户名称列表响应model
+    """
+    model_config = ConfigDict(alias_generator=to_camel, from_attributes=True)
+
+    user_id: Optional[int] = Field(default=None, description='用户ID')
+    user_name: Optional[str] = Field(default=None, description='用户账号')
+    nick_name: Optional[str] = Field(default=None, description='用户昵称')
+
+@as_query
+class UserNameResponsePageQueryModel(UserNameResponseModel):
+    """
+    用户管理分页查询模型
+    """
+
+    page_num: int = Field(default=1, description='当前页码')
+    page_size: int = Field(default=10, description='每页记录数')
+
+
+
 class UserRoleModel(BaseModel):
     """
     用户和角色关联表对应pydantic模型

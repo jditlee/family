@@ -12,7 +12,7 @@ from module_admin.entity.vo.user_vo import (
     UserPostModel,
     UserRoleModel,
     UserRolePageQueryModel,
-    UserRoleQueryModel,
+    UserRoleQueryModel, UserNameResponsePageQueryModel,
 )
 from utils.page_util import PageUtil
 
@@ -275,7 +275,7 @@ class UserDao:
 
     @classmethod
     async def get_user_list(
-        cls, db: AsyncSession, query_object: UserPageQueryModel, data_scope_sql: str, is_page: bool = False
+            cls, db: AsyncSession, query_object: UserPageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         根据查询参数获取用户列表信息
@@ -317,6 +317,29 @@ class UserDao:
                 SysDept,
                 and_(SysUser.dept_id == SysDept.dept_id, SysDept.status == '0', SysDept.del_flag == '0'),
                 isouter=True,
+            )
+            .order_by(SysUser.user_id)
+            .distinct()
+        )
+        user_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
+
+        return user_list
+
+    @classmethod
+    async def get_user_name_list(
+            cls, db: AsyncSession, query_object: UserNameResponsePageQueryModel, is_page: bool = True
+    ):
+        """
+        获取用户名称列表
+
+        :param db: orm对象
+        :return: 用户名称列表对象
+        """
+
+        query = (
+            select(SysUser.user_id, SysUser.user_name, SysUser.nick_name)
+            .where(
+                SysUser.del_flag == '0'
             )
             .order_by(SysUser.user_id)
             .distinct()
@@ -399,7 +422,7 @@ class UserDao:
 
     @classmethod
     async def get_user_role_allocated_list_by_role_id(
-        cls, db: AsyncSession, query_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
+            cls, db: AsyncSession, query_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         根据角色id获取已分配的用户列表信息
@@ -430,7 +453,7 @@ class UserDao:
 
     @classmethod
     async def get_user_role_unallocated_list_by_role_id(
-        cls, db: AsyncSession, query_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
+            cls, db: AsyncSession, query_object: UserRolePageQueryModel, data_scope_sql: str, is_page: bool = False
     ):
         """
         根据角色id获取未分配的用户列表信息
