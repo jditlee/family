@@ -134,3 +134,11 @@ export function deptTreeSelect() {
     method: 'get'
   })
 }
+
+// 查询入账人
+export function getUserListName() {
+  return request({
+    url: 'system/user/list_name',
+    method: 'get'
+  })
+}

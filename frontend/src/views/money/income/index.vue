@@ -1,33 +1,51 @@
 <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
-         <el-form-item label="公告标题" prop="noticeTitle">
+        <el-form-item label="收入类型" prop="type_id">
+                      <el-select clearable v-model="queryParams.type_id" style="width: 200px" placeholder="请选择收入类型">
+                        <el-option
+                           v-for="dict in income_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+          <el-form-item label="收入明细" prop="detail">
             <el-input
-               v-model="queryParams.noticeTitle"
-               placeholder="请输入公告标题"
+               v-model="queryParams.detail"
+               placeholder="请输入收入明细"
                clearable
                style="width: 200px"
                @keyup.enter="handleQuery"
             />
          </el-form-item>
-         <el-form-item label="操作人员" prop="createBy">
-            <el-input
-               v-model="queryParams.createBy"
-               placeholder="请输入操作人员"
-               clearable
-               style="width: 200px"
-               @keyup.enter="handleQuery"
-            />
+         <el-form-item label="入账人" prop="user_id">
+            <el-select clearable v-model="queryParams.user_id" style="width: 200px" placeholder="请选择入账人">
+                        <el-option
+                           v-for="dict in userListName"
+                           :key="dict.userId"
+                           :label="dict.nickName"
+                           :value="dict.userId"
+                        ></el-option>
+                     </el-select>
          </el-form-item>
-         <el-form-item label="类型" prop="noticeType">
-            <el-select v-model="queryParams.noticeType" placeholder="公告类型" clearable style="width: 200px">
+         <el-form-item label="收入来源" prop="income_type">
+            <el-select v-model="queryParams.income_type" placeholder="请选择收入来源" clearable style="width: 200px">
                <el-option
-                  v-for="dict in sys_notice_type"
+                  v-for="dict in income_type"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
                />
             </el-select>
+         </el-form-item>
+         <el-form-item label="收入时间" prop="income_time">
+         <el-date-picker v-model="queryParams.income_time" type="daterange" placeholder="请选择收入时间" range-separator="至"
+             start-placeholder="开始日期"
+             end-placeholder="结束日期"
+             style="width: 200px">
+         </el-date-picker>
          </el-form-item>
          <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -42,7 +60,7 @@
                plain
                icon="Plus"
                @click="handleAdd"
-               v-hasPermi="['system:notice:add']"
+               v-hasPermi="['money:income:add']"
             >新增</el-button>
          </el-col>
          <el-col :span="1.5">
@@ -52,7 +70,7 @@
                icon="Edit"
                :disabled="single"
                @click="handleUpdate"
-               v-hasPermi="['system:notice:edit']"
+               v-hasPermi="['money:income:edit']"
             >修改</el-button>
          </el-col>
          <el-col :span="1.5">
@@ -62,41 +80,72 @@
                icon="Delete"
                :disabled="multiple"
                @click="handleDelete"
-               v-hasPermi="['system:notice:remove']"
+               v-hasPermi="['money:income:remove']"
             >删除</el-button>
          </el-col>
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
-      <el-table v-loading="loading" :data="noticeList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="incomeList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="序号" align="center" prop="noticeId" width="100" />
-         <el-table-column
-            label="公告标题"
-            align="center"
-            prop="noticeTitle"
-            :show-overflow-tooltip="true"
-         />
-         <el-table-column label="公告类型" align="center" prop="noticeType" width="100">
+         <el-table-column label="收入类型" align="center" prop="typeId" width="100">
             <template #default="scope">
-               <dict-tag :options="sys_notice_type" :value="scope.row.noticeType" />
+                <dict-tag :options="income_type" :value="scope.row.typeId" />
             </template>
          </el-table-column>
-         <el-table-column label="状态" align="center" prop="status" width="100">
+         <el-table-column label="收入明细" align="center" prop="detail" :show-overflow-tooltip="true"  width="100" />
+         <el-table-column label="收入金额" align="center" prop="amount" width="100">
+         </el-table-column>
+         <el-table-column label="货币类型" align="center" prop="currency" width="100">
             <template #default="scope">
-               <dict-tag :options="sys_notice_status" :value="scope.row.status" />
+               <dict-tag :options="money_type" :value="scope.row.currency" />
             </template>
          </el-table-column>
-         <el-table-column label="创建者" align="center" prop="createBy" width="100" />
+         <el-table-column label="支付方式" align="center" prop="paymentMethod" width="100">
+         <template #default="scope">
+               <dict-tag :options="payment_method" :value="scope.row.paymentMethod" />
+            </template>
+         </el-table-column>
+         <el-table-column label="入账人" align="center" prop="userId" width="100">
+          <template #default="scope">
+               <span>{{ matchUserId(scope.row.userId) }}</span>
+            </template>
+         </el-table-column>
+         <el-table-column label="收入时间" align="center" prop="incomeTime" width="100">
+          <template #default="scope">
+               <span>{{ parseTime(scope.row.incomeTime, '{y}-{m}-{d}') }}</span>
+            </template>
+         </el-table-column>
+         <el-table-column label="收入来源" align="center" prop="sourceId" width="100">
+          <template #default="scope">
+               <dict-tag :options="income_source" :value="scope.row.sourceId" />
+            </template>
+         </el-table-column>
+         <el-table-column label="创建者" align="center" prop="createBy" width="100">
+           <template #default="scope">
+               <span>{{ matchUserId(scope.row.createBy) }}</span>
+            </template>
+          </el-table-column>
          <el-table-column label="创建时间" align="center" prop="createTime" width="100">
             <template #default="scope">
                <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
             </template>
          </el-table-column>
+          <el-table-column label="更新者" align="center" prop="updateBy" width="100">
+           <template #default="scope">
+               <span>{{ matchUserId(scope.row.updateBy) }}</span>
+            </template>
+          </el-table-column>
+         <el-table-column label="更新时间" align="center" prop="updateTime" width="100">
+            <template #default="scope">
+               <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
+            </template>
+         </el-table-column>
+         <el-table-column label="备注" align="center" prop="remark" width="100" />
          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
-               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:notice:edit']">修改</el-button>
-               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:notice:remove']" >删除</el-button>
+               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['money:income:edit']">修改</el-button>
+               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['money:income:remove']" >删除</el-button>
             </template>
          </el-table-column>
       </el-table>
@@ -104,25 +153,83 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         :page="queryParams.pageNum"
+         :limit="queryParams.pageSize"
          @pagination="getList"
       />
 
       <!-- 添加或修改公告对话框 -->
       <el-dialog :title="title" v-model="open" width="780px" append-to-body>
-         <el-form ref="noticeRef" :model="form" :rules="rules" label-width="80px">
+         <el-form ref="incomeRef" :model="form" :rules="rules" label-width="80px">
             <el-row>
                <el-col :span="12">
-                  <el-form-item label="公告标题" prop="noticeTitle">
-                     <el-input v-model="form.noticeTitle" placeholder="请输入公告标题" />
+                  <el-form-item label="收入类型" prop="type_id">
+                      <el-select v-model="form.type_id" placeholder="请选择收入类型">
+                        <el-option
+                           v-for="dict in income_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="公告类型" prop="noticeType">
-                     <el-select v-model="form.noticeType" placeholder="请选择">
+                  <el-form-item label="收入明细" prop="detail">
+                     <el-input v-model="form.detail" placeholder="请输入收入明细" />
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="收入金额" prop="amount">
+                     <el-input-number placeholder="请输入收入金额" v-model="form.amount" :precision="2" :step="0.1" controls-position="right" :min="0" ></el-input-number>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="货币类型" prop="currency">
+                      <el-select v-model="form.currency" placeholder="请选择货币类型">
                         <el-option
-                           v-for="dict in sys_notice_type"
+                           v-for="dict in money_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
+                <el-col :span="12">
+                  <el-form-item label="支付方式" prop="payment_method">
+                      <el-select v-model="form.payment_method" placeholder="请选择货币支付方式">
+                        <el-option
+                           v-for="dict in payment_method"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
+                <el-col :span="12">
+                  <el-form-item label="入账人" prop="user_id">       
+                     <el-select clearable v-model="form.user_id" placeholder="请选择入账人">
+                        <el-option
+                           v-for="dict in userListName"
+                           :key="dict.userId"
+                           :label="dict.nickName"
+                           :value="dict.userId"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="收入时间" prop="income_time">
+                     <el-date-picker v-model="form.income_time" align="right" type="date" placeholder="请选择日期"></el-date-picker>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="收入来源" prop="source_id">
+                      <el-select v-model="form.source_id" placeholder="请选择收入来源">
+                        <el-option
+                           v-for="dict in income_source"
                            :key="dict.value"
                            :label="dict.label"
                            :value="dict.value"
@@ -131,19 +238,8 @@
                   </el-form-item>
                </el-col>
                <el-col :span="24">
-                  <el-form-item label="状态">
-                     <el-radio-group v-model="form.status">
-                        <el-radio
-                           v-for="dict in sys_notice_status"
-                           :key="dict.value"
-                           :value="dict.value"
-                        >{{ dict.label }}</el-radio>
-                     </el-radio-group>
-                  </el-form-item>
-               </el-col>
-               <el-col :span="24">
-                  <el-form-item label="内容">
-                    <editor v-model="form.noticeContent" :min-height="192"/>
+                  <el-form-item label="备注" prop="remark">
+                     <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" />
                   </el-form-item>
                </el-col>
             </el-row>
@@ -159,12 +255,13 @@
 </template>
 
 <script setup name="Income">
-import { listNotice, getNotice, delNotice, addNotice, updateNotice } from "@/api/system/notice";
-
+import { listIncome, getIncome, delIncome, addIncome, updateIncome, } from "@/api/money/income";
+import { getUserListName } from '@/api/system/user'
 const { proxy } = getCurrentInstance();
-const { sys_notice_status, sys_notice_type } = proxy.useDict("sys_notice_status", "sys_notice_type");
+const { income_source, income_type, money_type, payment_method } = proxy.useDict("income_source", "income_type", "money_type", "payment_method");
 
-const noticeList = ref([]);
+const incomeList = ref([]);
+const userListName = ref([])
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -177,15 +274,16 @@ const title = ref("");
 const data = reactive({
   form: {},
   queryParams: {
-    pageNum: 1,
+    type_id: '',
+    detail: '',
+    user_id: undefined,
+    income_type: undefined,
+    income_time: undefined,
     pageSize: 10,
-    noticeTitle: undefined,
-    createBy: undefined,
-    status: undefined
   },
   rules: {
-    noticeTitle: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
-    noticeType: [{ required: true, message: "公告类型不能为空", trigger: "change" }]
+   //  incomeTitle: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
+   //  incomeType: [{ required: true, message: "公告类型不能为空", trigger: "change" }]
   },
 });
 
@@ -194,11 +292,17 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询公告列表 */
 function getList() {
   loading.value = true;
-  listNotice(queryParams.value).then(response => {
-    noticeList.value = response.rows;
+  listIncome(queryParams.value).then(response => {
+    incomeList.value = response.rows;
     total.value = response.total;
     loading.value = false;
   });
+}
+/** 查询用户列表 */
+function getUserList() {
+   getUserListName({ pageNum: 1, pageSize: 30 }).then(response => {
+    userListName.value = response.rows;
+  })
 }
 /** 取消按钮 */
 function cancel() {
@@ -208,13 +312,17 @@ function cancel() {
 /** 表单重置 */
 function reset() {
   form.value = {
-    noticeId: undefined,
-    noticeTitle: undefined,
-    noticeType: undefined,
-    noticeContent: undefined,
-    status: "0"
+    type_id: '1' ,
+    detail: '',
+    amount: 0,
+    currency: '1',
+    payment_method: '1',
+    user_id: 1,
+    income_time: '20240112',
+    source_id: '1',
+    remark: ''
   };
-  proxy.resetForm("noticeRef");
+  proxy.resetForm("incomeRef");
 }
 /** 搜索按钮操作 */
 function handleQuery() {
@@ -228,38 +336,45 @@ function resetQuery() {
 }
 /** 多选框选中数据 */
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.noticeId);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
-  open.value = true;
-  title.value = "添加公告";
+  open.value = true; 
+  title.value = "新增收入";
+  console.log(income_type)
 }
 /**修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const noticeId = row.noticeId || ids.value;
-  getNotice(noticeId).then(response => {
+  const incomeId = row.incomeId || ids.value;
+  getIncome(incomeId).then(response => {
     form.value = response.data;
+    form.value.type_id = form.value.type_id.toString()
+    form.value.currency = form.value.currency.toString()
+    form.value.payment_method = form.value.payment_method.toString()
+    form.value.source_id = form.value.source_id.toString()
+   
     open.value = true;
-    title.value = "修改公告";
+    title.value = "修改收入";
   });
 }
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["noticeRef"].validate(valid => {
+  proxy.$refs["incomeRef"].validate(valid => {
     if (valid) {
-      if (form.value.noticeId != undefined) {
-        updateNotice(form.value).then(response => {
+      if (form.value.id != undefined) {
+        updateIncome(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addNotice(form.value).then(response => {
+        console.log(form.value, form)
+        addIncome(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -270,14 +385,24 @@ function submitForm() {
 }
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const noticeIds = row.noticeId || ids.value
-  proxy.$modal.confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项？').then(function() {
-    return delNotice(noticeIds);
+  const incomeIds = row.id || ids.value
+  proxy.$modal.confirm('是否确认删除公告编号为"' + incomeIds + '"的数据项？').then(function() {
+    return delIncome(incomeIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
   }).catch(() => {});
 }
-
+/** 匹配user */
+function matchUserId(userId) {
+   if(userId) {
+      let user = userListName.value.find((el) => {
+         return el.userId ==  Number(userId)
+      })
+      return user.nickName || 'admin'
+   }
+   return 'admin'
+}
 getList();
+getUserList();
 </script>
