@@ -45,9 +45,9 @@ async def add_money_account_fund_changes(
         add_account_fund_changes.year = add_account_fund_changes.account_fund_changes_time.year
     if not add_account_fund_changes.month:
         add_account_fund_changes.month = add_account_fund_changes.account_fund_changes_time.month
-    add_account_fund_changes.create_by = current_user.user.user_name
+    add_account_fund_changes.create_by = current_user.user.user_id
     add_account_fund_changes.create_time = datetime.now()
-    add_account_fund_changes.update_by = current_user.user.user_name
+    add_account_fund_changes.update_by = current_user.user.user_id
     add_account_fund_changes.update_time = datetime.now()
     add_account_fund_changes_result = await AccountFundChangesService.add_account_fund_changes_services(query_db, add_account_fund_changes)
     logger.info(add_account_fund_changes_result.message)
@@ -63,7 +63,7 @@ async def edit_money_account_fund_changes(
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
-    edit_account_fund_changes.update_by = current_user.user.user_name
+    edit_account_fund_changes.update_by = current_user.user.user_id
     edit_account_fund_changes.update_time = datetime.now()
     edit_account_fund_changes_result = await AccountFundChangesService.edit_account_fund_changes_services(query_db, edit_account_fund_changes)
     logger.info(edit_account_fund_changes_result.message)

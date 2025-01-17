@@ -45,9 +45,9 @@ async def add_money_income(
         add_income.year = add_income.income_time.year
     if not add_income.month:
         add_income.month = add_income.income_time.month
-    add_income.create_by = current_user.user.user_name
+    add_income.create_by = current_user.user.user_id
     add_income.create_time = datetime.now()
-    add_income.update_by = current_user.user.user_name
+    add_income.update_by = current_user.user.user_id
     add_income.update_time = datetime.now()
     add_income_result = await IncomeService.add_income_services(query_db, add_income)
     logger.info(add_income_result.message)
@@ -63,7 +63,7 @@ async def edit_money_income(
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
-    edit_income.update_by = current_user.user.user_name
+    edit_income.update_by = current_user.user.user_id
     edit_income.update_time = datetime.now()
     edit_income_result = await IncomeService.edit_income_services(query_db, edit_income)
     logger.info(edit_income_result.message)
