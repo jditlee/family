@@ -45,9 +45,9 @@ async def add_money_consume(
         add_consume.year = add_consume.income_time.year
     if not add_consume.month:
         add_consume.month = add_consume.income_time.month
-    add_consume.create_by = current_user.user.user_name
+    add_consume.create_by = current_user.user.user_id
     add_consume.create_time = datetime.now()
-    add_consume.update_by = current_user.user.user_name
+    add_consume.update_by = current_user.user.user_id
     add_consume.update_time = datetime.now()
     add_consume_result = await ConsumeService.add_consume_services(query_db, add_consume)
     logger.info(add_consume_result.message)
@@ -63,7 +63,7 @@ async def edit_money_consume(
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
-    edit_consume.update_by = current_user.user.user_name
+    edit_consume.update_by = current_user.user.user_id
     edit_consume.update_time = datetime.now()
     edit_consume_result = await ConsumeService.edit_consume_services(query_db, edit_consume)
     logger.info(edit_consume_result.message)

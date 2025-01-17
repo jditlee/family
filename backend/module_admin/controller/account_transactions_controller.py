@@ -45,9 +45,9 @@ async def add_money_account_transactions(
         add_account_transactions.year = add_account_transactions.account_transactions_time.year
     if not add_account_transactions.month:
         add_account_transactions.month = add_account_transactions.account_transactions_time.month
-    add_account_transactions.create_by = current_user.user.user_name
+    add_account_transactions.create_by = current_user.user.user_id
     add_account_transactions.create_time = datetime.now()
-    add_account_transactions.update_by = current_user.user.user_name
+    add_account_transactions.update_by = current_user.user.user_id
     add_account_transactions.update_time = datetime.now()
     add_account_transactions_result = await AccountTransactionsService.add_account_transactions_services(query_db, add_account_transactions)
     logger.info(add_account_transactions_result.message)
@@ -63,7 +63,7 @@ async def edit_money_account_transactions(
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
-    edit_account_transactions.update_by = current_user.user.user_name
+    edit_account_transactions.update_by = current_user.user.user_id
     edit_account_transactions.update_time = datetime.now()
     edit_account_transactions_result = await AccountTransactionsService.edit_account_transactions_services(query_db, edit_account_transactions)
     logger.info(edit_account_transactions_result.message)
