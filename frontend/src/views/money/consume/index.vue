@@ -1,33 +1,52 @@
 <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
-         <el-form-item label="公告标题" prop="noticeTitle">
+        <el-form-item label="支出类型" prop="type_id">
+                      <el-select clearable v-model="queryParams.type_id" style="width: 200px" placeholder="请选择支出类型">
+                        <el-option
+                           v-for="dict in consume_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+          <el-form-item label="支出明细" prop="detail">
             <el-input
-               v-model="queryParams.noticeTitle"
-               placeholder="请输入公告标题"
+               v-model="queryParams.detail"
+               placeholder="请输入支出明细"
                clearable
                style="width: 200px"
                @keyup.enter="handleQuery"
             />
          </el-form-item>
-         <el-form-item label="操作人员" prop="createBy">
-            <el-input
-               v-model="queryParams.createBy"
-               placeholder="请输入操作人员"
-               clearable
-               style="width: 200px"
-               @keyup.enter="handleQuery"
-            />
+         <el-form-item label="入账人" prop="user_id">
+            <el-select clearable v-model="queryParams.user_id" style="width: 200px" placeholder="请选择入账人">
+                        <el-option
+                           v-for="dict in userListName"
+                           :key="dict.userId"
+                           :label="dict.nickName"
+                           :value="dict.userId"
+                        ></el-option>
+                     </el-select>
          </el-form-item>
-         <el-form-item label="类型" prop="noticeType">
-            <el-select v-model="queryParams.noticeType" placeholder="公告类型" clearable style="width: 200px">
+         <el-form-item label="支出来源" prop="source_id">
+            <el-select v-model="queryParams.source_id" placeholder="请选择支出来源" clearable style="width: 200px">
                <el-option
-                  v-for="dict in sys_notice_type"
+                  v-for="dict in consume_source"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
                />
             </el-select>
+         </el-form-item>
+         <el-form-item label="支出时间" prop="consume_time">
+         <el-date-picker v-model="dateRange" type="daterange" range-separator="至"
+             start-placeholder="开始日期"
+             end-placeholder="结束日期"
+             value-format="YYYY-MM-DD"
+             style="width: 308px">
+         </el-date-picker>
          </el-form-item>
          <el-form-item>
             <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -42,7 +61,7 @@
                plain
                icon="Plus"
                @click="handleAdd"
-               v-hasPermi="['system:notice:add']"
+               v-hasPermi="['money:consume:add']"
             >新增</el-button>
          </el-col>
          <el-col :span="1.5">
@@ -52,7 +71,7 @@
                icon="Edit"
                :disabled="single"
                @click="handleUpdate"
-               v-hasPermi="['system:notice:edit']"
+               v-hasPermi="['money:consume:edit']"
             >修改</el-button>
          </el-col>
          <el-col :span="1.5">
@@ -62,41 +81,57 @@
                icon="Delete"
                :disabled="multiple"
                @click="handleDelete"
-               v-hasPermi="['system:notice:remove']"
+               v-hasPermi="['money:consume:remove']"
             >删除</el-button>
          </el-col>
          <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
       </el-row>
 
-      <el-table v-loading="loading" :data="noticeList" @selection-change="handleSelectionChange">
+      <el-table v-loading="loading" :data="consumeList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="序号" align="center" prop="noticeId" width="100" />
-         <el-table-column
-            label="公告标题"
-            align="center"
-            prop="noticeTitle"
-            :show-overflow-tooltip="true"
-         />
-         <el-table-column label="公告类型" align="center" prop="noticeType" width="100">
+         <el-table-column label="支出类型" align="center" prop="typeId" width="130">
             <template #default="scope">
-               <dict-tag :options="sys_notice_type" :value="scope.row.noticeType" />
+                <dict-tag :options="consume_type" :value="scope.row.typeId" />
             </template>
          </el-table-column>
-         <el-table-column label="状态" align="center" prop="status" width="100">
+         <el-table-column label="支出明细" align="center" prop="detail" :show-overflow-tooltip="true"  width="130" />
+         <el-table-column label="支出金额" align="center" prop="amount" width="130">
+         </el-table-column>
+         <el-table-column label="货币类型" align="center" prop="currency" width="130">
             <template #default="scope">
-               <dict-tag :options="sys_notice_status" :value="scope.row.status" />
+               <dict-tag :options="money_type" :value="scope.row.currency" />
             </template>
          </el-table-column>
-         <el-table-column label="创建者" align="center" prop="createBy" width="100" />
-         <el-table-column label="创建时间" align="center" prop="createTime" width="100">
+         <el-table-column label="支付方式" align="center" prop="paymentMethod" width="130">
+         <template #default="scope">
+               <dict-tag :options="payment_method" :value="scope.row.paymentMethod" />
+            </template>
+         </el-table-column>
+         <el-table-column label="入账人" align="center" prop="userId" width="130">
+          <template #default="scope">
+               <span>{{ matchUserId(scope.row.userId) }}</span>
+            </template>
+         </el-table-column>
+         <el-table-column label="支出时间" align="center" prop="consumeTime" width="160">
+          <template #default="scope">
+               <span>{{ parseTime(scope.row.consumeTime, '{y}-{m}-{d}') }}</span>
+            </template>
+         </el-table-column>
+         <el-table-column label="支出来源" align="center" prop="sourceId" width="130">
+          <template #default="scope">
+               <dict-tag :options="consume_source" :value="scope.row.sourceId" />
+            </template>
+         </el-table-column>
+         <el-table-column label="创建时间" align="center" prop="createTime" width="160">
             <template #default="scope">
                <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
             </template>
          </el-table-column>
+         <el-table-column label="备注" align="center" prop="remark" width="300" />
          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
-               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:notice:edit']">修改</el-button>
-               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:notice:remove']" >删除</el-button>
+               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['money:consume:edit']">修改</el-button>
+               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['money:consume:remove']" >删除</el-button>
             </template>
          </el-table-column>
       </el-table>
@@ -104,25 +139,83 @@
       <pagination
          v-show="total > 0"
          :total="total"
-         v-model:page="queryParams.pageNum"
-         v-model:limit="queryParams.pageSize"
+         :page="queryParams.pageNum"
+         :limit="queryParams.pageSize"
          @pagination="getList"
       />
 
       <!-- 添加或修改公告对话框 -->
       <el-dialog :title="title" v-model="open" width="780px" append-to-body>
-         <el-form ref="noticeRef" :model="form" :rules="rules" label-width="80px">
+         <el-form ref="consumeRef" :model="form" :rules="rules" label-width="80px">
             <el-row>
                <el-col :span="12">
-                  <el-form-item label="公告标题" prop="noticeTitle">
-                     <el-input v-model="form.noticeTitle" placeholder="请输入公告标题" />
+                  <el-form-item label="支出类型" prop="type_id">
+                      <el-select v-model="form.type_id" placeholder="请选择支出类型">
+                        <el-option
+                           v-for="dict in consume_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="公告类型" prop="noticeType">
-                     <el-select v-model="form.noticeType" placeholder="请选择">
+                  <el-form-item label="支出明细" prop="detail">
+                     <el-input v-model="form.detail" placeholder="请输入支出明细" />
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="支出金额" prop="amount">
+                     <el-input-number placeholder="请输入支出金额" v-model="form.amount" :precision="2" :step="0.01" controls-position="right" :min="0.01" ></el-input-number>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="货币类型" prop="currency">
+                      <el-select v-model="form.currency" placeholder="请选择货币类型">
                         <el-option
-                           v-for="dict in sys_notice_type"
+                           v-for="dict in money_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
+                <el-col :span="12">
+                  <el-form-item label="支付方式" prop="payment_method">
+                      <el-select v-model="form.payment_method" placeholder="请选择货币支付方式">
+                        <el-option
+                           v-for="dict in payment_method"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
+                <el-col :span="12">
+                  <el-form-item label="入账人" prop="user_id">       
+                     <el-select clearable v-model="form.user_id" placeholder="请选择入账人">
+                        <el-option
+                           v-for="dict in userListName"
+                           :key="dict.userId"
+                           :label="dict.nickName"
+                           :value="dict.userId"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="支出时间" prop="consume_time">
+                     <el-date-picker v-model="form.consume_time" align="right" type="date" placeholder="请选择日期"></el-date-picker>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="支出来源" prop="source_id">
+                      <el-select v-model="form.source_id" placeholder="请选择支出来源">
+                        <el-option
+                           v-for="dict in consume_source"
                            :key="dict.value"
                            :label="dict.label"
                            :value="dict.value"
@@ -131,19 +224,8 @@
                   </el-form-item>
                </el-col>
                <el-col :span="24">
-                  <el-form-item label="状态">
-                     <el-radio-group v-model="form.status">
-                        <el-radio
-                           v-for="dict in sys_notice_status"
-                           :key="dict.value"
-                           :value="dict.value"
-                        >{{ dict.label }}</el-radio>
-                     </el-radio-group>
-                  </el-form-item>
-               </el-col>
-               <el-col :span="24">
-                  <el-form-item label="内容">
-                    <editor v-model="form.noticeContent" :min-height="192"/>
+                  <el-form-item label="备注" prop="remark">
+                     <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" />
                   </el-form-item>
                </el-col>
             </el-row>
@@ -159,12 +241,14 @@
 </template>
 
 <script setup name="Consume">
-import { listNotice, getNotice, delNotice, addNotice, updateNotice } from "@/api/system/notice";
+import { listConsume, getConsume, delConsume, addConsume, updateConsume, } from "@/api/money/consume";
+import { getUserListName, getUserProfile } from '@/api/system/user'
 
 const { proxy } = getCurrentInstance();
-const { sys_notice_status, sys_notice_type } = proxy.useDict("sys_notice_status", "sys_notice_type");
+const { consume_source, consume_type, money_type, payment_method } = proxy.useDict("consume_source", "consume_type", "money_type", "payment_method");
 
-const noticeList = ref([]);
+const consumeList = ref([]);
+const userListName = ref([])
 const open = ref(false);
 const loading = ref(true);
 const showSearch = ref(true);
@@ -173,19 +257,23 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const dateRange = ref([]);
+const currentUser = ref("")
 
 const data = reactive({
   form: {},
   queryParams: {
-    pageNum: 1,
-    pageSize: 10,
-    noticeTitle: undefined,
-    createBy: undefined,
-    status: undefined
+    type_id: '',
+    detail: '',
+    user_id: undefined,
+    consume_type: undefined,
+    consume_time: undefined,
+    source_id: undefined,
+    page_size: 10,
   },
   rules: {
-    noticeTitle: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
-    noticeType: [{ required: true, message: "公告类型不能为空", trigger: "change" }]
+    amount: [{ required: true, message: '支出金额不能为空'},{ min: 0.01, message: '支出金额必须大于 0' }],
+   //  consumeType: [{ required: true, message: "公告类型不能为空", trigger: "change" }]
   },
 });
 
@@ -194,11 +282,17 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询公告列表 */
 function getList() {
   loading.value = true;
-  listNotice(queryParams.value).then(response => {
-    noticeList.value = response.rows;
+  listConsume(proxy.addDateRange(queryParams.value, dateRange.value, '_time')).then(response => {
+    consumeList.value = response.rows;
     total.value = response.total;
     loading.value = false;
   });
+}
+/** 查询用户列表 */
+function getUserList() {
+   getUserListName({ pageNum: 1, pageSize: 30 }).then(response => {
+    userListName.value = response.rows;
+  })
 }
 /** 取消按钮 */
 function cancel() {
@@ -208,58 +302,68 @@ function cancel() {
 /** 表单重置 */
 function reset() {
   form.value = {
-    noticeId: undefined,
-    noticeTitle: undefined,
-    noticeType: undefined,
-    noticeContent: undefined,
-    status: "0"
+    type_id: '1' ,
+    detail: '',
+    amount: 0,
+    currency: '0',
+    payment_method: '3',
+    user_id: currentUser.value,
+    consume_time: new Date(),
+    source_id: '1',
+    remark: ''
   };
-  proxy.resetForm("noticeRef");
+  proxy.resetForm("consumeRef");
 }
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1;
+  queryParams.value.page_num   = 1;
   getList();
 }
 /** 重置按钮操作 */
 function resetQuery() {
+  dateRange.value = []
   proxy.resetForm("queryRef");
   handleQuery();
 }
 /** 多选框选中数据 */
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.noticeId);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 }
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
-  open.value = true;
-  title.value = "添加公告";
+  open.value = true; 
+  title.value = "新增支出";
 }
 /**修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const noticeId = row.noticeId || ids.value;
-  getNotice(noticeId).then(response => {
+  const consumeId = row.id || ids.value;
+  getConsume(consumeId).then(response => {
     form.value = response.data;
+    form.value.type_id = form.value.type_id.toString()
+    form.value.currency = form.value.currency.toString()
+    form.value.payment_method = form.value.payment_method.toString()
+    form.value.source_id = form.value.source_id.toString()
+   
     open.value = true;
-    title.value = "修改公告";
+    title.value = "修改支出";
   });
 }
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["noticeRef"].validate(valid => {
+  proxy.$refs["consumeRef"].validate(valid => {
     if (valid) {
-      if (form.value.noticeId != undefined) {
-        updateNotice(form.value).then(response => {
+      if (form.value.id != undefined) {
+        updateConsume(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addNotice(form.value).then(response => {
+        addConsume(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
@@ -270,14 +374,30 @@ function submitForm() {
 }
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const noticeIds = row.noticeId || ids.value
-  proxy.$modal.confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项？').then(function() {
-    return delNotice(noticeIds);
+  const consumeIds = row.id || ids.value
+  proxy.$modal.confirm('是否确认删除公告编号为"' + consumeIds + '"的数据项？').then(function() {
+    return delConsume(consumeIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
   }).catch(() => {});
 }
-
+/** 匹配user */
+function matchUserId(userId) {
+   if(userId) {
+      let user = userListName.value.find((el) => {
+         return el.userId ==  Number(userId)
+      })
+      return user.nickName || 'admin'
+   }
+   return 'admin'
+}
+function getUser() {
+  getUserProfile().then(response => {
+   currentUser.value = response.data.userId 
+  });
+}
+getUser();
 getList();
+getUserList();
 </script>
