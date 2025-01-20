@@ -30,10 +30,10 @@
                         ></el-option>
                      </el-select>
          </el-form-item>
-         <el-form-item label="收入来源" prop="income_type">
-            <el-select v-model="queryParams.income_type" placeholder="请选择收入来源" clearable style="width: 200px">
+         <el-form-item label="收入来源" prop="income_source">
+            <el-select v-model="queryParams.income_source" placeholder="请选择收入来源" clearable style="width: 200px">
                <el-option
-                  v-for="dict in income_type"
+                  v-for="dict in income_source"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
@@ -41,10 +41,11 @@
             </el-select>
          </el-form-item>
          <el-form-item label="收入时间" prop="income_time">
-         <el-date-picker v-model="queryParams.income_time" type="daterange" placeholder="请选择收入时间" range-separator="至"
+         <el-date-picker v-model="dateRange" type="daterange" range-separator="至"
              start-placeholder="开始日期"
              end-placeholder="结束日期"
-             style="width: 200px">
+             value-format="YYYY-MM-DD"
+             style="width: 308px">
          </el-date-picker>
          </el-form-item>
          <el-form-item>
@@ -88,60 +89,45 @@
 
       <el-table v-loading="loading" :data="incomeList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="收入类型" align="center" prop="typeId" width="100">
+         <el-table-column label="收入类型" align="center" prop="typeId" width="130">
             <template #default="scope">
                 <dict-tag :options="income_type" :value="scope.row.typeId" />
             </template>
          </el-table-column>
-         <el-table-column label="收入明细" align="center" prop="detail" :show-overflow-tooltip="true"  width="100" />
-         <el-table-column label="收入金额" align="center" prop="amount" width="100">
+         <el-table-column label="收入明细" align="center" prop="detail" :show-overflow-tooltip="true"  width="130" />
+         <el-table-column label="收入金额" align="center" prop="amount" width="130">
          </el-table-column>
-         <el-table-column label="货币类型" align="center" prop="currency" width="100">
+         <el-table-column label="货币类型" align="center" prop="currency" width="130">
             <template #default="scope">
                <dict-tag :options="money_type" :value="scope.row.currency" />
             </template>
          </el-table-column>
-         <el-table-column label="支付方式" align="center" prop="paymentMethod" width="100">
+         <el-table-column label="支付方式" align="center" prop="paymentMethod" width="130">
          <template #default="scope">
                <dict-tag :options="payment_method" :value="scope.row.paymentMethod" />
             </template>
          </el-table-column>
-         <el-table-column label="入账人" align="center" prop="userId" width="100">
+         <el-table-column label="入账人" align="center" prop="userId" width="130">
           <template #default="scope">
                <span>{{ matchUserId(scope.row.userId) }}</span>
             </template>
          </el-table-column>
-         <el-table-column label="收入时间" align="center" prop="incomeTime" width="100">
+         <el-table-column label="收入时间" align="center" prop="incomeTime" width="160">
           <template #default="scope">
                <span>{{ parseTime(scope.row.incomeTime, '{y}-{m}-{d}') }}</span>
             </template>
          </el-table-column>
-         <el-table-column label="收入来源" align="center" prop="sourceId" width="100">
+         <el-table-column label="收入来源" align="center" prop="sourceId" width="130">
           <template #default="scope">
                <dict-tag :options="income_source" :value="scope.row.sourceId" />
             </template>
          </el-table-column>
-         <el-table-column label="创建者" align="center" prop="createBy" width="100">
-           <template #default="scope">
-               <span>{{ matchUserId(scope.row.createBy) }}</span>
-            </template>
-          </el-table-column>
-         <el-table-column label="创建时间" align="center" prop="createTime" width="100">
+         <el-table-column label="创建时间" align="center" prop="createTime" width="160">
             <template #default="scope">
                <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
             </template>
          </el-table-column>
-          <el-table-column label="更新者" align="center" prop="updateBy" width="100">
-           <template #default="scope">
-               <span>{{ matchUserId(scope.row.updateBy) }}</span>
-            </template>
-          </el-table-column>
-         <el-table-column label="更新时间" align="center" prop="updateTime" width="100">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
-            </template>
-         </el-table-column>
-         <el-table-column label="备注" align="center" prop="remark" width="100" />
+         <el-table-column label="备注" align="center" prop="remark" width="300" />
          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
                <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['money:income:edit']">修改</el-button>
@@ -270,6 +256,7 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+const dateRange = ref([]);
 
 const data = reactive({
   form: {},
@@ -279,7 +266,7 @@ const data = reactive({
     user_id: undefined,
     income_type: undefined,
     income_time: undefined,
-    pageSize: 10,
+    page_size: 10,
   },
   rules: {
    //  incomeTitle: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
@@ -292,7 +279,18 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询公告列表 */
 function getList() {
   loading.value = true;
-  listIncome(queryParams.value).then(response => {
+  listIncome(proxy.addDateRange(queryParams.value, dateRange.value, '_time')
+//    {
+//    // ...queryParams.value
+//     type_id: queryParams.value.type_id,
+//     detail: queryParams.value.detail,
+//     user_id: queryParams.value.user_id,
+//     income_type: queryParams.value.income_type,
+//     begin_time: queryParams.value.income_time.length == 0 ? '':queryParams.value.income_time[0],
+//     end_time: queryParams.value.income_time.length == 0 ? '':queryParams.value.income_time[1],
+//     page_size: 10,
+//   }
+  ).then(response => {
     incomeList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -315,10 +313,10 @@ function reset() {
     type_id: '1' ,
     detail: '',
     amount: 0,
-    currency: '1',
-    payment_method: '1',
+    currency: '0',
+    payment_method: '3',
     user_id: 1,
-    income_time: '20240112',
+    income_time: new Date(),
     source_id: '1',
     remark: ''
   };
@@ -326,11 +324,12 @@ function reset() {
 }
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.pageNum = 1;
+  queryParams.value.page_num   = 1;
   getList();
 }
 /** 重置按钮操作 */
 function resetQuery() {
+  dateRange.value = []
   proxy.resetForm("queryRef");
   handleQuery();
 }
@@ -350,7 +349,7 @@ function handleAdd() {
 /**修改按钮操作 */
 function handleUpdate(row) {
   reset();
-  const incomeId = row.incomeId || ids.value;
+  const incomeId = row.id || ids.value;
   getIncome(incomeId).then(response => {
     form.value = response.data;
     form.value.type_id = form.value.type_id.toString()
