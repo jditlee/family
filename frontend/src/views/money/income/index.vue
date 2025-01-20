@@ -166,9 +166,16 @@
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="收入金额" prop="amount">
-                     <el-input-number placeholder="请输入收入金额" v-model="form.amount" :precision="2" :step="0.01" controls-position="right" :min="0.01" ></el-input-number>
-                  </el-form-item>
+                 <el-form-item label="收入金额" prop="amount">
+                   <el-input-number
+                       placeholder="请输入收入金额"
+                       v-model="form.amount"
+                       :precision="2"
+                       :step="0.01"
+                       controls-position="right"
+                       >
+                   </el-input-number>
+                 </el-form-item>
                </el-col>
                <el-col :span="12">
                   <el-form-item label="货币类型" prop="currency">
@@ -261,7 +268,9 @@ const dateRange = ref([]);
 const currentUser = ref("")
 
 const data = reactive({
-  form: {},
+  form: {
+    amount: 0 // 设置默认值为0，确保它是数字类型
+  },
   queryParams: {
     type_id: '',
     detail: '',
@@ -272,8 +281,19 @@ const data = reactive({
     page_size: 10,
   },
   rules: {
-    amount: [{ required: true, message: '收入金额不能为空'},{ min: 0.01, message: '收入金额必须大于 0' }],
-   //  incomeType: [{ required: true, message: "公告类型不能为空", trigger: "change" }]
+    amount: [
+      { required: true, message: '收入金额不能为空' },
+      {
+        validator: (rule, value, callback) => {
+          if (value === '' || value <= 0) {
+            callback(new Error('收入金额必须大于 0'));
+          } else {
+            callback();
+          }
+        },
+        trigger: 'blur'
+      }
+    ]
   },
 });
 
