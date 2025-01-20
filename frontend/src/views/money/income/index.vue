@@ -30,8 +30,8 @@
                         ></el-option>
                      </el-select>
          </el-form-item>
-         <el-form-item label="收入来源" prop="income_source">
-            <el-select v-model="queryParams.income_source" placeholder="请选择收入来源" clearable style="width: 200px">
+         <el-form-item label="收入来源" prop="source_id">
+            <el-select v-model="queryParams.source_id" placeholder="请选择收入来源" clearable style="width: 200px">
                <el-option
                   v-for="dict in income_source"
                   :key="dict.value"
@@ -167,7 +167,7 @@
                </el-col>
                <el-col :span="12">
                   <el-form-item label="收入金额" prop="amount">
-                     <el-input-number placeholder="请输入收入金额" v-model="form.amount" :precision="2" :step="0.1" controls-position="right" :min="0" ></el-input-number>
+                     <el-input-number placeholder="请输入收入金额" v-model="form.amount" :precision="2" :step="0.01" controls-position="right" :min="0.01" ></el-input-number>
                   </el-form-item>
                </el-col>
                <el-col :span="12">
@@ -242,7 +242,8 @@
 
 <script setup name="Income">
 import { listIncome, getIncome, delIncome, addIncome, updateIncome, } from "@/api/money/income";
-import { getUserListName } from '@/api/system/user'
+import { getUserListName, getUserProfile } from '@/api/system/user'
+
 const { proxy } = getCurrentInstance();
 const { income_source, income_type, money_type, payment_method } = proxy.useDict("income_source", "income_type", "money_type", "payment_method");
 
@@ -257,6 +258,7 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 const dateRange = ref([]);
+const currentUser = ref("")
 
 const data = reactive({
   form: {},
@@ -266,10 +268,11 @@ const data = reactive({
     user_id: undefined,
     income_type: undefined,
     income_time: undefined,
+    source_id: undefined,
     page_size: 10,
   },
   rules: {
-   //  incomeTitle: [{ required: true, message: "公告标题不能为空", trigger: "blur" }],
+    amount: [{ required: true, message: '收入金额不能为空'},{ min: 0.01, message: '收入金额必须大于 0' }],
    //  incomeType: [{ required: true, message: "公告类型不能为空", trigger: "change" }]
   },
 });
@@ -279,18 +282,7 @@ const { queryParams, form, rules } = toRefs(data);
 /** 查询公告列表 */
 function getList() {
   loading.value = true;
-  listIncome(proxy.addDateRange(queryParams.value, dateRange.value, '_time')
-//    {
-//    // ...queryParams.value
-//     type_id: queryParams.value.type_id,
-//     detail: queryParams.value.detail,
-//     user_id: queryParams.value.user_id,
-//     income_type: queryParams.value.income_type,
-//     begin_time: queryParams.value.income_time.length == 0 ? '':queryParams.value.income_time[0],
-//     end_time: queryParams.value.income_time.length == 0 ? '':queryParams.value.income_time[1],
-//     page_size: 10,
-//   }
-  ).then(response => {
+  listIncome(proxy.addDateRange(queryParams.value, dateRange.value, '_time')).then(response => {
     incomeList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -315,7 +307,7 @@ function reset() {
     amount: 0,
     currency: '0',
     payment_method: '3',
-    user_id: 1,
+    user_id: currentUser.value,
     income_time: new Date(),
     source_id: '1',
     remark: ''
@@ -344,7 +336,6 @@ function handleAdd() {
   reset();
   open.value = true; 
   title.value = "新增收入";
-  console.log(income_type)
 }
 /**修改按钮操作 */
 function handleUpdate(row) {
@@ -372,7 +363,6 @@ function submitForm() {
           getList();
         });
       } else {
-        console.log(form.value, form)
         addIncome(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
@@ -402,6 +392,12 @@ function matchUserId(userId) {
    }
    return 'admin'
 }
+function getUser() {
+  getUserProfile().then(response => {
+   currentUser.value = response.data.userId 
+  });
+}
+getUser();
 getList();
 getUserList();
 </script>
