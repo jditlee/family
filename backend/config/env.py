@@ -13,11 +13,11 @@ class AppSettings(BaseSettings):
     """
 
     app_env: str = 'dev'
-    app_name: str = 'RuoYi-FasAPI'
+    app_name: str = 'Family-FasAPI'
     app_root_path: str = '/dev-api'
     app_host: str = '0.0.0.0'
     app_port: int = 9099
-    app_version: str = '1.0.0'
+    app_version: str = '0.0.1'
     app_reload: bool = True
     app_ip_location_query: bool = True
     app_same_time_login: bool = True
@@ -44,7 +44,7 @@ class DataBaseSettings(BaseSettings):
     db_port: int = 3306
     db_username: str = 'root'
     db_password: str = 'mysqlroot'
-    db_database: str = 'ruoyi-fastapi'
+    db_database: str = 'family-fastapi'
     db_echo: bool = True
     db_max_overflow: int = 10
     db_pool_size: int = 50

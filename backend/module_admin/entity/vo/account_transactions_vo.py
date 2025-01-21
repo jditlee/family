@@ -1,6 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic_validation_decorator import NotBlank, Size, Xss
+from pydantic.alias_generators import to_camel
+
 from typing import Optional
 from decimal import Decimal
 
@@ -10,7 +12,7 @@ class AccountTransactionsModel(BaseModel):
     AccountTransactions表对应pydantic模型
     """
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(alias_generator=to_camel, from_attributes=True)
 
     id: Optional[int] = Field(None, description='开支记录表ID')
 

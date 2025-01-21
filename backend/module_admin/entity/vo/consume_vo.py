@@ -1,6 +1,8 @@
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic_validation_decorator import NotBlank, Size, Xss
+from pydantic.alias_generators import to_camel
+
 from typing import Optional
 from decimal import Decimal
 
@@ -10,7 +12,7 @@ class ConsumeModel(BaseModel):
     开支记录表对应pydantic模型
     """
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(alias_generator=to_camel, from_attributes=True)
 
     id: Optional[int] = Field(None, description='开支记录表ID')
     type_id: Optional[int] = Field(None, description='消费类型id，关联字典表（0衣1食2住3行）')
