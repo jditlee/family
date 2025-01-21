@@ -25,7 +25,7 @@ class ConsumeModel(BaseModel):
     location: Optional[str] = Field(None, max_length=255, description='消费发生的地点')
     tags: Optional[str] = Field(None, max_length=255,
                                 description='消费记录的标签（如“重要”、“偶然消费”、“节假日”等），支持多标签（逗号分隔）')
-    user_id: Optional[int] = Field(None, max_length=255, description='消费人id')
+    user_id: Optional[int] = Field(None, description='消费人id')
     consume_time: Optional[datetime] = Field(None, description='消费时间')
     year: Optional[int] = Field(None, description='消费年份')
     month: Optional[int] = Field(None, description='消费月份')
