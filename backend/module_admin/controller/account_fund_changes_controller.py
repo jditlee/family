@@ -41,10 +41,7 @@ async def add_money_account_fund_changes(
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
-    if not add_account_fund_changes.year:
-        add_account_fund_changes.year = add_account_fund_changes.account_fund_changes_time.year
-    if not add_account_fund_changes.month:
-        add_account_fund_changes.month = add_account_fund_changes.account_fund_changes_time.month
+
     add_account_fund_changes.create_by = current_user.user.user_id
     add_account_fund_changes.create_time = datetime.now()
     add_account_fund_changes.update_by = current_user.user.user_id

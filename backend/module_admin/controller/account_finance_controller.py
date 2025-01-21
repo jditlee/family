@@ -41,10 +41,6 @@ async def add_money_account_finance(
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
-    if not add_account_finance.year:
-        add_account_finance.year = add_account_finance.account_finance_time.year
-    if not add_account_finance.month:
-        add_account_finance.month = add_account_finance.account_finance_time.month
     add_account_finance.create_by = current_user.user.user_id
     add_account_finance.create_time = datetime.now()
     add_account_finance.update_by = current_user.user.user_id

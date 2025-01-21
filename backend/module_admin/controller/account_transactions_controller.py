@@ -41,10 +41,6 @@ async def add_money_account_transactions(
         query_db: AsyncSession = Depends(get_db),
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
-    if not add_account_transactions.year:
-        add_account_transactions.year = add_account_transactions.account_transactions_time.year
-    if not add_account_transactions.month:
-        add_account_transactions.month = add_account_transactions.account_transactions_time.month
     add_account_transactions.create_by = current_user.user.user_id
     add_account_transactions.create_time = datetime.now()
     add_account_transactions.update_by = current_user.user.user_id
