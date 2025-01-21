@@ -1,44 +1,44 @@
 import request from '@/utils/request'
 
 // 查询公告列表
-export function listNotice(query) {
+export function listConsume(query) {
   return request({
-    url: '/system/notice/list',
+    url: '/money/consume/list',
     method: 'get',
     params: query
   })
 }
 
 // 查询公告详细
-export function getNotice(noticeId) {
+export function getConsume(consumeId) {
   return request({
-    url: '/system/notice/' + noticeId,
+    url: '/money/consume/' + consumeId,
     method: 'get'
   })
 }
 
 // 新增公告
-export function addNotice(data) {
+export function addConsume(data) {
   return request({
-    url: '/system/notice',
+    url: '/money/consume',
     method: 'post',
     data: data
   })
 }
 
 // 修改公告
-export function updateNotice(data) {
+export function updateConsume(data) {
   return request({
-    url: '/system/notice',
+    url: '/money/consume',
     method: 'put',
     data: data
   })
 }
 
 // 删除公告
-export function delNotice(noticeId) {
+export function delConsume(consumeId) {
   return request({
-    url: '/system/notice/' + noticeId,
+    url: '/money/consume/' + consumeId,
     method: 'delete'
   })
 }
