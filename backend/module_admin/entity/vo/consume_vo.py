@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic_validation_decorator import NotBlank, Size, Xss
 from pydantic.alias_generators import to_camel
+from module_admin.annotation.pydantic_annotation import as_query
 
 from typing import Optional
 from decimal import Decimal
@@ -47,7 +48,7 @@ class ConsumeQueryModel(ConsumeModel):
     begin_time: Optional[str] = Field(default=None, description='开始时间')
     end_time: Optional[str] = Field(default=None, description='结束时间')
 
-
+@as_query
 class ConsumePageQueryModel(ConsumeQueryModel):
     """
     通知公告管理分页查询模型

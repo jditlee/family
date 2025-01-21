@@ -22,7 +22,7 @@ consumeController = APIRouter(prefix='/money/consume', dependencies=[Depends(Log
 )
 async def get_money_consume_list(
         request: Request,
-        consume_page_query: ConsumePageQueryModel = Query(),
+        consume_page_query: ConsumePageQueryModel = Depends(ConsumePageQueryModel.as_query),
         query_db: AsyncSession = Depends(get_db),
 ):
     # 获取分页数据

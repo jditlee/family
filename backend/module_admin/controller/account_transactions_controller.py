@@ -22,7 +22,7 @@ account_transactionsController = APIRouter(prefix='/money/account_transactions',
 )
 async def get_money_account_transactions_list(
         request: Request,
-        account_transactions_page_query: AccountTransactionsPageQueryModel = Query(),
+        account_transactions_page_query: AccountTransactionsPageQueryModel = Depends(AccountTransactionsPageQueryModel.as_query),
         query_db: AsyncSession = Depends(get_db),
 ):
     # 获取分页数据

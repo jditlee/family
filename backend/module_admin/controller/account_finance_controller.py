@@ -22,7 +22,7 @@ account_financeController = APIRouter(prefix='/money/account_finance', dependenc
 )
 async def get_money_account_finance_list(
         request: Request,
-        account_finance_page_query: AccountFinancePageQueryModel = Query(),
+        account_finance_page_query: AccountFinancePageQueryModel = Depends(AccountFinancePageQueryModel.as_query),
         query_db: AsyncSession = Depends(get_db),
 ):
     # 获取分页数据

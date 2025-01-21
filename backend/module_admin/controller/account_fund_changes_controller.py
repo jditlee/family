@@ -22,7 +22,7 @@ account_fund_changesController = APIRouter(prefix='/money/account_fund_changes',
 )
 async def get_money_account_fund_changes_list(
         request: Request,
-        account_fund_changes_page_query: AccountFundChangesPageQueryModel = Query(),
+        account_fund_changes_page_query: AccountFundChangesPageQueryModel = Depends(AccountFundChangesPageQueryModel.as_query),
         query_db: AsyncSession = Depends(get_db),
 ):
     # 获取分页数据

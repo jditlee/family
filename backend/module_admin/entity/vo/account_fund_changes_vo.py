@@ -5,6 +5,7 @@ from pydantic.alias_generators import to_camel
 
 from typing import Optional
 from decimal import Decimal
+from module_admin.annotation.pydantic_annotation import as_query
 
 
 class AccountFundChangesModel(BaseModel):
@@ -39,7 +40,7 @@ class AccountFundChangesQueryModel(AccountFundChangesModel):
     begin_time: Optional[str] = Field(default=None, description='开始时间')
     end_time: Optional[str] = Field(default=None, description='结束时间')
 
-
+@as_query
 class AccountFundChangesPageQueryModel(AccountFundChangesQueryModel):
     """
     分页查询模型
