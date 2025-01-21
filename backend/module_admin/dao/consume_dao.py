@@ -42,7 +42,7 @@ class ConsumeDao:
                 Consume.category.like(f'%{query_object.category}%') if query_object.category else True,
                 Consume.location.like(f'%{query_object.location}%') if query_object.location else True,
                 Consume.tags.like(f'%{query_object.tags}%') if query_object.tags else True,
-                Consume.user_name.like(f'%{query_object.user_name}%') if query_object.user_name else True,
+                Consume.user_id == query_object.user_id if query_object.user_id else True,
                 Consume.type_id == query_object.type_id if query_object.type_id else True,
                 Consume.currency == query_object.currency if query_object.currency else True,
                 Consume.payment_id == query_object.payment_id if query_object.payment_id else True,
