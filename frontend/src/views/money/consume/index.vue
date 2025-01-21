@@ -1,8 +1,8 @@
 <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
-        <el-form-item label="支出类型" prop="type_id">
-                      <el-select clearable v-model="queryParams.type_id" style="width: 200px" placeholder="请选择支出类型">
+        <el-form-item label="消费类型" prop="typeId">
+                      <el-select clearable v-model="queryParams.typeId" style="width: 200px" placeholder="请选择消费类型">
                         <el-option
                            v-for="dict in consume_type"
                            :key="dict.value"
@@ -11,17 +11,57 @@
                         ></el-option>
                      </el-select>
                   </el-form-item>
-          <el-form-item label="支出明细" prop="detail">
+        <el-form-item label="消费明细" prop="detail">
             <el-input
                v-model="queryParams.detail"
-               placeholder="请输入支出明细"
+               placeholder="请输入消费明细"
                clearable
                style="width: 200px"
                @keyup.enter="handleQuery"
             />
          </el-form-item>
-         <el-form-item label="入账人" prop="user_id">
-            <el-select clearable v-model="queryParams.user_id" style="width: 200px" placeholder="请选择入账人">
+         <el-form-item label="货币类型" prop="currency">
+                      <el-select clearable v-model="queryParams.currency" style="width: 200px" placeholder="请选择消费类型">
+                        <el-option
+                           v-for="dict in money_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+         <el-form-item label="消费类别" prop="category">
+                      <el-select clearable v-model="queryParams.category" style="width: 200px" placeholder="请选择消费类型">
+                        <el-option
+                           v-for="dict in consume_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+         <el-form-item label="消费场景" prop="scene">
+                      <el-select clearable v-model="queryParams.scene" style="width: 200px" placeholder="请选择消费类型">
+                        <el-option
+                           v-for="dict in consume_scene"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+          <el-form-item label="支付方式" prop="paymentId">
+                      <el-select clearable v-model="queryParams.paymentId" style="width: 200px" placeholder="请选择消费类型">
+                        <el-option
+                           v-for="dict in payment_method"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+         <el-form-item label="支付人" prop="userId">
+            <el-select clearable v-model="queryParams.userId" style="width: 200px" placeholder="请选择消费人">
                         <el-option
                            v-for="dict in userListName"
                            :key="dict.userId"
@@ -30,17 +70,35 @@
                         ></el-option>
                      </el-select>
          </el-form-item>
-         <el-form-item label="支出来源" prop="source_id">
-            <el-select v-model="queryParams.source_id" placeholder="请选择支出来源" clearable style="width: 200px">
+          <el-form-item label="消费地点" prop="location">
+            <el-input
+               v-model="queryParams.location"
+               placeholder="请输入地点"
+               clearable
+               style="width: 200px"
+               @keyup.enter="handleQuery"
+            />
+         </el-form-item>
+        <el-form-item label="消费标签" prop="tags">
+            <el-input
+               v-model="queryParams.tags"
+               placeholder="请输入地点"
+               clearable
+               style="width: 200px"
+               @keyup.enter="handleQuery"
+            />
+         </el-form-item>
+         <el-form-item label="消费状态" prop="status">
+            <el-select v-model="queryParams.status" placeholder="请选择消费状态" clearable style="width: 200px">
                <el-option
-                  v-for="dict in consume_source"
+                  v-for="dict in consume_status"
                   :key="dict.value"
                   :label="dict.label"
                   :value="dict.value"
                />
             </el-select>
          </el-form-item>
-         <el-form-item label="支出时间" prop="consume_time">
+         <el-form-item label="消费时间" prop="consumeTime">
          <el-date-picker v-model="dateRange" type="daterange" range-separator="至"
              start-placeholder="开始日期"
              end-placeholder="结束日期"
@@ -89,45 +147,48 @@
 
       <el-table v-loading="loading" :data="consumeList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="支出类型" align="center" prop="typeId" width="130">
+         <el-table-column label="消费类型" align="center" prop="typeId" width="100">
             <template #default="scope">
                 <dict-tag :options="consume_type" :value="scope.row.typeId" />
             </template>
          </el-table-column>
-         <el-table-column label="支出明细" align="center" prop="detail" :show-overflow-tooltip="true"  width="130" />
-         <el-table-column label="支出金额" align="center" prop="amount" width="130">
+         <el-table-column label="消费明细" align="center" prop="detail" :show-overflow-tooltip="true"  width="130" />
+         <el-table-column label="消费金额" align="center" prop="amount" width="130">
          </el-table-column>
-         <el-table-column label="货币类型" align="center" prop="currency" width="130">
+         <!-- <el-table-column label="货币类型" align="center" prop="currency" width="130">
             <template #default="scope">
                <dict-tag :options="money_type" :value="scope.row.currency" />
             </template>
-         </el-table-column>
-         <el-table-column label="支付方式" align="center" prop="paymentMethod" width="130">
-         <template #default="scope">
-               <dict-tag :options="payment_method" :value="scope.row.paymentMethod" />
+         </el-table-column> -->
+         <el-table-column label="消费类别" align="center" prop="category" width="130" />
+         <el-table-column label="支付方式" align="center" prop="paymentId" width="130">
+            <template #default="scope">
+               <dict-tag :options="payment_method" :value="scope.row.paymentId" />
             </template>
          </el-table-column>
-         <el-table-column label="入账人" align="center" prop="userId" width="130">
-          <template #default="scope">
-               <span>{{ matchUserId(scope.row.userId) }}</span>
+         <el-table-column label="消费状态" align="center" prop="status" width="130">
+            <template #default="scope">
+               <dict-tag :options="consume_status" :value="scope.row.status" />
             </template>
          </el-table-column>
-         <el-table-column label="支出时间" align="center" prop="consumeTime" width="160">
+         <el-table-column label="消费地点" align="center" prop="location" width="130" />
+         <el-table-column label="消费记录标签" align="center" prop="tags" width="130" />
+         <el-table-column label="消费人" align="center" prop="userId" width="130">
+               <template #default="scope">
+                     <span>{{ matchUserId(scope.row.userId) }}</span>
+                  </template>
+         </el-table-column>
+         <el-table-column label="消费时间" align="center" prop="consumeTime" width="160">
           <template #default="scope">
                <span>{{ parseTime(scope.row.consumeTime, '{y}-{m}-{d}') }}</span>
             </template>
          </el-table-column>
-         <el-table-column label="支出来源" align="center" prop="sourceId" width="130">
+         <el-table-column label="消费场景" align="center" prop="scene" width="130">
           <template #default="scope">
-               <dict-tag :options="consume_source" :value="scope.row.sourceId" />
+               <dict-tag :options="consume_scene" :value="scope.row.scene" />
             </template>
          </el-table-column>
-         <el-table-column label="创建时间" align="center" prop="createTime" width="160">
-            <template #default="scope">
-               <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
-            </template>
-         </el-table-column>
-         <el-table-column label="备注" align="center" prop="remark" width="300" />
+         <el-table-column label="备注" align="center" prop="remark" width="200" />
          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template #default="scope">
                <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['money:consume:edit']">修改</el-button>
@@ -149,8 +210,8 @@
          <el-form ref="consumeRef" :model="form" :rules="rules" label-width="80px">
             <el-row>
                <el-col :span="12">
-                  <el-form-item label="支出类型" prop="type_id">
-                      <el-select v-model="form.type_id" placeholder="请选择支出类型">
+                  <el-form-item label="消费类型" prop="typeId">
+                      <el-select v-model="form.typeId" placeholder="请选择消费类型">
                         <el-option
                            v-for="dict in consume_type"
                            :key="dict.value"
@@ -161,13 +222,13 @@
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="支出明细" prop="detail">
-                     <el-input v-model="form.detail" placeholder="请输入支出明细" />
+                  <el-form-item label="消费明细" prop="detail">
+                     <el-input v-model="form.detail" placeholder="请输入消费明细" />
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="支出金额" prop="amount">
-                     <el-input-number placeholder="请输入支出金额" v-model="form.amount" :precision="2" :step="0.01" controls-position="right" :min="0.01" ></el-input-number>
+                  <el-form-item label="消费金额" prop="amount">
+                     <el-input-number placeholder="请输入消费金额" v-model="form.amount" :precision="2" :step="0.01" controls-position="right" :min="0.01" ></el-input-number>
                   </el-form-item>
                </el-col>
                <el-col :span="12">
@@ -182,9 +243,21 @@
                      </el-select>
                   </el-form-item>
                </el-col>
+               <el-col :span="12">
+                  <el-form-item label="消费类别" prop="category">
+                      <el-select v-model="form.category" placeholder="请选择货币类型">
+                        <el-option
+                           v-for="dict in consume_type"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
                 <el-col :span="12">
-                  <el-form-item label="支付方式" prop="payment_method">
-                      <el-select v-model="form.payment_method" placeholder="请选择货币支付方式">
+                  <el-form-item label="支付方式" prop="paymentId">
+                      <el-select v-model="form.paymentId" placeholder="请选择货币支付方式">
                         <el-option
                            v-for="dict in payment_method"
                            :key="dict.value"
@@ -194,9 +267,31 @@
                      </el-select>
                   </el-form-item>
                </el-col>
+               <el-col :span="12">
+                  <el-form-item label="支付状态" prop="status">
+                      <el-select v-model="form.status" placeholder="请选择支付状态">
+                        <el-option
+                           v-for="dict in consume_status"
+                           :key="dict.value"
+                           :label="dict.label"
+                           :value="dict.value"
+                        ></el-option>
+                     </el-select>
+                  </el-form-item>
+               </el-col>
+               <el-col :span="12">
+                  <el-form-item label="消费地点" prop="location">
+                     <el-input v-model="form.location" type="" placeholder="请输入消费地点" />
+                  </el-form-item>
+               </el-col>
                 <el-col :span="12">
-                  <el-form-item label="入账人" prop="user_id">       
-                     <el-select clearable v-model="form.user_id" placeholder="请选择入账人">
+                  <el-form-item label="记录标签" prop="tags">
+                     <el-input v-model="form.tags" type="" placeholder="请输入消费标签，逗号分开" />
+                  </el-form-item>
+               </el-col>
+                <el-col :span="12">
+                  <el-form-item label="消费人" prop="userId">       
+                     <el-select clearable v-model="form.userId" placeholder="请选择入账人">
                         <el-option
                            v-for="dict in userListName"
                            :key="dict.userId"
@@ -207,15 +302,15 @@
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="支出时间" prop="consume_time">
-                     <el-date-picker v-model="form.consume_time" align="right" type="date" placeholder="请选择日期"></el-date-picker>
+                  <el-form-item label="消费时间" prop="consumeTime">
+                     <el-date-picker v-model="form.consumeTime" align="right" type="date" placeholder="请选择日期"></el-date-picker>
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item label="支出来源" prop="source_id">
-                      <el-select v-model="form.source_id" placeholder="请选择支出来源">
+                  <el-form-item label="消费场景" prop="scene">
+                      <el-select v-model="form.scene     " placeholder="请选择消费场景">
                         <el-option
-                           v-for="dict in consume_source"
+                           v-for="dict in consume_scene"
                            :key="dict.value"
                            :label="dict.label"
                            :value="dict.value"
@@ -245,7 +340,7 @@ import { listConsume, getConsume, delConsume, addConsume, updateConsume, } from 
 import { getUserListName, getUserProfile } from '@/api/system/user'
 
 const { proxy } = getCurrentInstance();
-const { consume_source, consume_type, money_type, payment_method } = proxy.useDict("consume_source", "consume_type", "money_type", "payment_method");
+const { consume_scene, consume_type, consume_status, money_type, payment_method } = proxy.useDict("consume_scene", "consume_type", "consume_status",  "money_type", "payment_method");
 
 const consumeList = ref([]);
 const userListName = ref([])
@@ -263,26 +358,44 @@ const currentUser = ref("")
 const data = reactive({
   form: {},
   queryParams: {
-    type_id: '',
+    typeId: '',
     detail: '',
-    user_id: undefined,
-    consume_type: undefined,
-    consume_time: undefined,
-    source_id: undefined,
-    page_size: 10,
+    currency: '',
+    category: '',
+    scene: '',
+    paymentId: '',
+    userId: undefined,
+    location: undefined,
+    tags: undefined,
+    status: undefined,
+    consumeTime: undefined,
+    pageSize: 10,
   },
   rules: {
-    amount: [{ required: true, message: '支出金额不能为空'},{ min: 0.01, message: '支出金额必须大于 0' }],
-   //  consumeType: [{ required: true, message: "公告类型不能为空", trigger: "change" }]
+    detail: [{ required: true, message: '消费明细不能为空', trigger: 'blur'}],
+    amount: [
+      { required: true, message: '收入金额不能为空' },
+      {
+        validator: (rule, value, callback) => {
+          if (value === '' || value <= 0) {
+            callback(new Error('收入金额必须大于 0'));
+          } else {
+            callback();
+          }
+        },
+        trigger: 'blur'
+      }
+    ],
+   //  location: [{ required: true, message: '消费地点不能为空', trigger: 'blur'}],
   },
 });
 
 const { queryParams, form, rules } = toRefs(data);
 
-/** 查询公告列表 */
+/** 查询消费列表 */
 function getList() {
   loading.value = true;
-  listConsume(proxy.addDateRange(queryParams.value, dateRange.value, '_time')).then(response => {
+  listConsume(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
     consumeList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -302,21 +415,25 @@ function cancel() {
 /** 表单重置 */
 function reset() {
   form.value = {
-    type_id: '1' ,
+    typeId: '1' ,
     detail: '',
     amount: 0,
     currency: '0',
-    payment_method: '3',
-    user_id: currentUser.value,
-    consume_time: new Date(),
-    source_id: '1',
+    category: '0',
+    paymentId: '3',
+    status: '0',
+    location: '',
+    tags: '',
+    userId: currentUser.value,
+    consumeTime: new Date(),
+    scene: '0',
     remark: ''
   };
   proxy.resetForm("consumeRef");
 }
 /** 搜索按钮操作 */
 function handleQuery() {
-  queryParams.value.page_num   = 1;
+  queryParams.value.pageNum = 1;
   getList();
 }
 /** 重置按钮操作 */
@@ -335,7 +452,7 @@ function handleSelectionChange(selection) {
 function handleAdd() {
   reset();
   open.value = true; 
-  title.value = "新增支出";
+  title.value = "新增消费";
 }
 /**修改按钮操作 */
 function handleUpdate(row) {
@@ -343,13 +460,13 @@ function handleUpdate(row) {
   const consumeId = row.id || ids.value;
   getConsume(consumeId).then(response => {
     form.value = response.data;
-    form.value.type_id = form.value.type_id.toString()
+    form.value.typeId = form.value.typeId.toString()
     form.value.currency = form.value.currency.toString()
-    form.value.payment_method = form.value.payment_method.toString()
-    form.value.source_id = form.value.source_id.toString()
-   
+    form.value.paymentId = form.value.paymentId.toString()
+    form.value.scene = form.value.scene.toString()
+    form.value.userId = parseInt(form.value.userId)
     open.value = true;
-    title.value = "修改支出";
+    title.value = "修改消费";
   });
 }
 /** 提交按钮 */
