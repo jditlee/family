@@ -42,9 +42,9 @@ async def add_money_consume(
         current_user: CurrentUserModel = Depends(LoginService.get_current_user),
 ):
     if not add_consume.year:
-        add_consume.year = add_consume.income_time.year
+        add_consume.year = add_consume.consume_time.year
     if not add_consume.month:
-        add_consume.month = add_consume.income_time.month
+        add_consume.month = add_consume.consume_time.month
     add_consume.create_by = current_user.user.user_id
     add_consume.create_time = datetime.now()
     add_consume.update_by = current_user.user.user_id
