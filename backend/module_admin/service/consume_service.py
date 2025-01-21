@@ -4,7 +4,7 @@ from exceptions.exception import ServiceException
 from module_admin.dao.consume_dao import ConsumeDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.consume_vo import DeleteConsumeModel, ConsumeModel, ConsumePageQueryModel
-from utils.common_util import SqlalchemyUtil
+from utils.common_util import CamelCaseUtil
 
 
 class ConsumeService:
@@ -100,7 +100,7 @@ class ConsumeService:
         """
         consume = await ConsumeDao.get_consume_detail_by_id(query_db, id=id)
         if consume:
-            result = ConsumeModel(**SqlalchemyUtil.serialize_result(consume))
+            result = ConsumeModel(**CamelCaseUtil.transform_result(consume))
         else:
             result = ConsumeModel(**dict())
 

@@ -45,7 +45,7 @@ class Consume(Base):
     status = Column(Integer, default=0, comment='消费状态，关联字典表（0（完成）、1（待处理）、2（分期）等）')
     location = Column(String(255), comment='消费发生的地点')
     tags = Column(String(255), comment='消费记录的标签（如“重要”、“偶然消费”、“节假日”等），支持多标签（逗号分隔）')
-    user_name = Column(String(255), comment='消费人名称')
+    user_id = Column(String(255), comment='消费人id')
     consume_time = Column(DateTime,nullable=False, comment='消费时间')
     year = Column(Integer, nullable=False,comment='消费年份')
     month = Column(Integer,nullable=False, comment='消费月份')

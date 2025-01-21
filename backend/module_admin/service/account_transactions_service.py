@@ -4,7 +4,7 @@ from exceptions.exception import ServiceException
 from module_admin.dao.account_transactions_dao import AccountTransactionsDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.account_transactions_vo import DeleteAccountTransactionsModel, AccountTransactionsModel, AccountTransactionsPageQueryModel
-from utils.common_util import SqlalchemyUtil
+from utils.common_util import SqlalchemyUtil, CamelCaseUtil
 
 
 class AccountTransactionsService:
@@ -100,7 +100,7 @@ class AccountTransactionsService:
         """
         account_transactions = await AccountTransactionsDao.get_account_transactions_detail_by_id(query_db, id=id)
         if account_transactions:
-            result = AccountTransactionsModel(**SqlalchemyUtil.serialize_result(account_transactions))
+            result = AccountTransactionsModel(**CamelCaseUtil.transform_result(account_transactions))
         else:
             result = AccountTransactionsModel(**dict())
 

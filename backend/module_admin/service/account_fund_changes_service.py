@@ -4,7 +4,7 @@ from exceptions.exception import ServiceException
 from module_admin.dao.account_fund_changes_dao import AccountFundChangesDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.account_fund_changes_vo import DeleteAccountFundChangesModel, AccountFundChangesModel, AccountFundChangesPageQueryModel
-from utils.common_util import SqlalchemyUtil
+from utils.common_util import SqlalchemyUtil, CamelCaseUtil
 
 
 class AccountFundChangesService:
@@ -100,7 +100,7 @@ class AccountFundChangesService:
         """
         account_fund_changes = await AccountFundChangesDao.get_account_fund_changes_detail_by_id(query_db, id=id)
         if account_fund_changes:
-            result = AccountFundChangesModel(**SqlalchemyUtil.serialize_result(account_fund_changes))
+            result = AccountFundChangesModel(**CamelCaseUtil.transform_result(account_fund_changes))
         else:
             result = AccountFundChangesModel(**dict())
 

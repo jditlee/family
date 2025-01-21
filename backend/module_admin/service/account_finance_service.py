@@ -4,7 +4,7 @@ from exceptions.exception import ServiceException
 from module_admin.dao.account_finance_dao import AccountFinanceDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.account_finance_vo import DeleteAccountFinanceModel, AccountFinanceModel, AccountFinancePageQueryModel
-from utils.common_util import SqlalchemyUtil
+from utils.common_util import SqlalchemyUtil, CamelCaseUtil
 
 
 class AccountFinanceService:
@@ -100,7 +100,7 @@ class AccountFinanceService:
         """
         account_finance = await AccountFinanceDao.get_account_finance_detail_by_id(query_db, id=id)
         if account_finance:
-            result = AccountFinanceModel(**SqlalchemyUtil.serialize_result(account_finance))
+            result = AccountFinanceModel(**CamelCaseUtil.transform_result(account_finance))
         else:
             result = AccountFinanceModel(**dict())
 
