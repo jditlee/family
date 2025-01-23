@@ -311,6 +311,7 @@ function handleUpdate(row) {
   const account_financeId = row.id || ids.value;
   getAccountFinance(account_financeId).then(response => {
     form.value = response.data;
+    form.value.typeId = form.value.typeId.toString()
     open.value = true;
     title.value = "修改账户";
   });

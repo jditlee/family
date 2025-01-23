@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
-      <el-form-item label="账户" prop="accountIf">
-        <el-select clearable v-model="queryParams.accountId" style="width: 200px" placeholder="请选择消费类型">
+      <el-form-item label="账户" prop="accountId">
+        <el-select clearable v-model="queryParams.accountId" style="width: 200px" placeholder="请选择账户">
           <el-option
               v-for="dict in accountIds"
               :key="dict.id"

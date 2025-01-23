@@ -313,6 +313,7 @@ function handleUpdate(row) {
   const accountFundChangesId = row.id || ids.value;
   getAccountFundChanges(accountFundChangesId).then(response => {
     form.value = response.data;
+    form.value.transactionTypeId = form.value.transactionTypeId.toString()
     open.value = true;
     title.value = "修改交易记录";
   });
