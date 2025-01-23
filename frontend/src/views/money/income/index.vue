@@ -325,7 +325,7 @@ function reset() {
     type_id: '1' ,
     detail: '',
     amount: 0,
-    currency: '0',
+    currency: '1',
     payment_method: '3',
     user_id: currentUser.value,
     income_time: new Date(),

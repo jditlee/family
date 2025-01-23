@@ -50,36 +50,6 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-<!--      <el-form-item label="货币类型" prop="currency">-->
-<!--        <el-select clearable v-model="queryParams.currency" style="width: 200px" placeholder="请选择消费类型">-->
-<!--          <el-option-->
-<!--              v-for="dict in money_type"-->
-<!--              :key="dict.value"-->
-<!--              :label="dict.label"-->
-<!--              :value="dict.value"-->
-<!--          ></el-option>-->
-<!--        </el-select>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="消费类别" prop="category">-->
-<!--        <el-input-->
-<!--            v-model="queryParams.category"-->
-<!--            placeholder="请输入消费类型"-->
-<!--            clearable-->
-<!--            style="width: 200px"-->
-<!--            @keyup.enter="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
-
-<!--      <el-form-item label="支付方式" prop="paymentId">-->
-<!--        <el-select clearable v-model="queryParams.paymentId" style="width: 200px" placeholder="请选择消费类型">-->
-<!--          <el-option-->
-<!--              v-for="dict in payment_method"-->
-<!--              :key="dict.value"-->
-<!--              :label="dict.label"-->
-<!--              :value="dict.value"-->
-<!--          ></el-option>-->
-<!--        </el-select>-->
-<!--      </el-form-item>-->
 
       <el-form-item label="消费地点" prop="location">
         <el-input
@@ -90,15 +60,6 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-<!--      <el-form-item label="消费标签" prop="tags">-->
-<!--        <el-input-->
-<!--            v-model="queryParams.tags"-->
-<!--            placeholder="请输入地点"-->
-<!--            clearable-->
-<!--            style="width: 200px"-->
-<!--            @keyup.enter="handleQuery"-->
-<!--        />-->
-<!--      </el-form-item>-->
 
       <el-form-item label="消费时间" prop="consumeTime">
         <el-date-picker v-model="dateRange" type="daterange" range-separator="至"
@@ -177,13 +138,6 @@
           <span>{{ matchUserId(scope.row.userId) }}</span>
         </template>
       </el-table-column>
-
-      <!-- <el-table-column label="货币类型" align="center" prop="currency" width="130">
-         <template #default="scope">
-            <dict-tag :options="money_type" :value="scope.row.currency" />
-         </template>
-      </el-table-column> -->
-<!--      <el-table-column label="消费类别" align="center" prop="category" width="130"/>-->
       <el-table-column label="支付方式" align="center" prop="paymentId" width="130">
         <template #default="scope">
           <dict-tag :options="payment_method" :value="scope.row.paymentId"/>
@@ -194,10 +148,6 @@
           <dict-tag :options="consume_status" :value="scope.row.status"/>
         </template>
       </el-table-column>
-<!--      <el-table-column label="消费记录标签" align="center" prop="tags" width="130"/>-->
-
-
-<!--      <el-table-column label="备注" align="center" prop="remark" width="200"/>-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -403,8 +353,7 @@ const data = reactive({
         },
         trigger: 'blur'
       }
-    ],
-    //  location: [{ required: true, message: '消费地点不能为空', trigger: 'blur'}],
+    ]
   },
 });
 
