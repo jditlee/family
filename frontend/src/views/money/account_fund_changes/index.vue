@@ -2,22 +2,26 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
       <el-form-item label="入账账户id" prop="inAccountId">
-        <el-input
-            v-model="queryParams.inAccountId"
-            placeholder="请输入入账账户id"
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleQuery"
-        />
+        <el-select clearable v-model="queryParams.inAccountId" style="width: 200px" placeholder="请选择入账账户">
+          <el-option
+              v-for="dict in accountIds"
+              :key="dict.id"
+              :label="dict.accounrName"
+              :value="dict.id"
+          ></el-option>
+        </el-select>
+        
+
       </el-form-item>
       <el-form-item label="出账账户id" prop="outAccountId">
-        <el-input
-            v-model="queryParams.outAccountId"
-            placeholder="请输入出账账户id"
-            clearable
-            style="width: 200px"
-            @keyup.enter="handleQuery"
-        />
+          <el-select clearable v-model="queryParams.outAccountId" style="width: 200px" placeholder="请选择出账账户">
+          <el-option
+              v-for="dict in accountIds"
+              :key="dict.id"
+              :label="dict.accounrName"
+              :value="dict.id"
+          ></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="交易类型" prop="transactionTypeId">
         <el-select v-model="queryParams.transactionTypeId" placeholder="交易类型" clearable style="width: 200px">
@@ -83,18 +87,16 @@
       <el-table-column type="selection" width="55" align="center"/>
       
       <el-table-column label="序号" align="center" prop="id" width="100"/>
-      <el-table-column
-          label="入账账户"
-          align="center"
-          prop="inAccountId"
-          :show-overflow-tooltip="true"
-      />
-      <el-table-column
-          label="出账账户"
-          align="center"
-          prop="outAccountId"
-          :show-overflow-tooltip="true"
-      />
+      <el-table-column label="入账账户" align="center" prop="inAccountId" width="130">
+        <template #default="scope">
+          <span>{{ matchAccount(scope.row.inAccountId) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="出账账户" align="center" prop="outAccountId" width="130">
+        <template #default="scope">
+          <span>{{ matchAccount(scope.row.outAccountId) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="交易类型" align="center" prop="transactionTypeId" width="100">
         <template #default="scope">
           <dict-tag :options="transaction_type" :value="scope.row.transactionTypeId"/>
@@ -140,13 +142,27 @@
       <el-form ref="accountFundChangesRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="入账ID" prop="inAccountId">
-              <el-input v-model="form.inAccountId" placeholder="请输入入账账户ID"/>
+            <el-form-item label="入账账户" prop="inAccountId">
+              <el-select v-model="form.inAccountId" placeholder="请选择入账账户">
+          <el-option
+              v-for="dict in accountIds"
+              :key="dict.id"
+              :label="dict.accounrName"
+              :value="dict.id"
+          ></el-option>
+        </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="出账ID" prop="outAccountId">
-              <el-input v-model="form.outAccountId" placeholder="请输入出账账户ID"/>
+            <el-form-item label="出账账户" prop="outAccountId">
+              <el-select clearable v-model="form.outAccountId"  placeholder="请选择出账账户">
+          <el-option
+              v-for="dict in accountIds"
+              :key="dict.id"
+              :label="dict.accounrName"
+              :value="dict.id"
+          ></el-option>
+        </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -199,11 +215,13 @@ import {
   addAccountFundChanges,
   updateAccountFundChanges
 } from "@/api/money/account_fund_changes";
+import { listAccountFinance} from "@/api/money/account_finance";
 import {getUserListName} from "@/api/system/user.js";
 
 const {proxy} = getCurrentInstance();
 const {transaction_type,} = proxy.useDict("transaction_type",);
 const userListName = ref([])
+const accountIds = ref([])
 
 const accountFundChangesList = ref([]);
 const open = ref(false);
@@ -348,6 +366,24 @@ function matchUserId(userId) {
   return 'admin'
 }
 
+/** 匹配账户 */
+function getAccountList() {
+  listAccountFinance({pageNum: 1, pageSize: 30}).then(response => {
+    accountIds.value = response.rows;
+  })
+}
+
+function matchAccount(accountId) {
+  if(accountId) {
+    let account = []
+     account = accountIds.value.find((el) => {
+      return el.id == accountId
+    })
+    return account.length == 0 ? accountId : account.accounrName
+  }
+}
+
+getAccountList()
 getList();
 getUserList();
 
