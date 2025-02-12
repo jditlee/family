@@ -17,6 +17,7 @@ class ConsumeModel(BaseModel):
 
     id: Optional[int] = Field(None, description='开支记录表ID')
     type_id: Optional[int] = Field(None, description='消费类型id，关联字典表（0衣1食2住3行）')
+    acc_id: Optional[int] = Field(None, description='账户id，关联账户表主键id')
     detail: Optional[str] = Field(None, max_length=1024, description='消费明细')
     amount: Optional[Decimal] = Field(None, description='消费金额，支持更高精度')
     category: Optional[str] = Field(None, max_length=255, description='消费类别的子分类')

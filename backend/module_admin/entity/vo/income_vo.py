@@ -14,6 +14,7 @@ class IncomeModel(BaseModel):
 
     id: Optional[int] = Field(None, description='开支记录表ID')
     type_id: Optional[int] = Field(None, description='收入类型id，关联字典表收入类型(工资，奖金，分红)')
+    acc_id: Optional[int] = Field(None, description='账户id，关联账户表主键id')
     detail: Optional[str] = Field(None, max_length=1024, description='收入明细')
     amount: Optional[Decimal] = Field(None, nullable=False, description='收入金额')
     currency: Optional[int] = Field(0,  description='收入金额的货币类型')

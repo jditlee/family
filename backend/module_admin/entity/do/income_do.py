@@ -31,6 +31,7 @@ create table income
     id = Column(Integer, primary_key=True, autoincrement=True, comment='收入记录表ID')
 
     type_id = Column(Integer, comment='收入类型id，关联字典表收入类型(工资，奖金，分红)')
+    acc_id = Column(Integer, comment='账户id，关联账户表主键id')
     detail = Column(String(1024), comment='收入明细')
     amount = Column(Numeric(15, 2), nullable=False, comment='收入金额')
     currency = Column(Integer, default=0, nullable=False, comment='收入金额的货币类型')

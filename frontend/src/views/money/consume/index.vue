@@ -1,6 +1,16 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+      <el-form-item label="消费账户" prop="accId">
+        <el-select clearable v-model="queryParams.accId" style="width: 200px" placeholder="请选择账户">
+          <el-option
+              v-for="dict in accountIds"
+              :key="dict.id"
+              :label="dict.accounrName"
+              :value="dict.id"
+          ></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="消费场景" prop="scene">
         <el-select clearable v-model="queryParams.scene" style="width: 200px" placeholder="请选择消费类型">
           <el-option
@@ -31,7 +41,7 @@
           ></el-option>
         </el-select>
       </el-form-item>
-            <el-form-item label="消费状态" prop="status">
+      <el-form-item label="消费状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择消费状态" clearable style="width: 200px">
           <el-option
               v-for="dict in consume_status"
@@ -113,6 +123,11 @@
 
     <el-table v-loading="loading" :data="consumeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
+      <el-table-column label="账户" align="center" prop="accId" width="130">
+        <template #default="scope">
+          <span>{{ matchAccount(scope.row.accId) }} </span>
+        </template>
+      </el-table-column>
       <el-table-column label="消费场景" align="center" prop="scene" width="130">
         <template #default="scope">
           <dict-tag :options="consume_scene" :value="scope.row.scene"/>
@@ -172,6 +187,18 @@
     <el-dialog :title="title" v-model="open" width="780px" append-to-body>
       <el-form ref="consumeRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
+          <el-col :span="20">
+            <el-form-item label="入账账户" labelWidth="120" prop="accId">
+              <el-select v-model="form.accId" placeholder="请选择账户ID">
+                <el-option
+                    v-for="dict in accountIds"
+                    :key="dict.id"
+                    :label="dict.accounrName"
+                    :value="dict.id"
+                ></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
           <el-col :span="12">
             <el-form-item label="消费时间" prop="consumeTime">
               <el-date-picker v-model="form.consumeTime" align="right" type="date"
@@ -215,7 +242,7 @@
           <el-col :span="12">
             <el-form-item label="消费金额" prop="amount">
               <el-input-number placeholder="请输入消费金额" v-model="form.amount" :precision="2" :step="0.01"
-                               controls-position="right" ></el-input-number>
+                               controls-position="right"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -300,6 +327,7 @@
 <script setup name="Consume">
 import {listConsume, getConsume, delConsume, addConsume, updateConsume,} from "@/api/money/consume";
 import {getUserListName, getUserProfile} from '@/api/system/user'
+import {listAccountFinance} from "@/api/money/account_finance.js";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -322,6 +350,7 @@ const total = ref(0);
 const title = ref("");
 const dateRange = ref([]);
 const currentUser = ref("")
+const accountIds = ref([])
 
 const data = reactive({
   form: {},
@@ -332,6 +361,7 @@ const data = reactive({
     category: '',
     scene: '',
     paymentId: '',
+    accId: undefined,
     userId: undefined,
     location: undefined,
     tags: undefined,
@@ -390,10 +420,11 @@ function reset() {
     amount: 0,
     currency: '1',
     category: '',
-    paymentId: '3',
+    paymentId: '1',
     status: '1',
     location: '',
     tags: '',
+    accId: '',
     userId: currentUser.value,
     consumeTime: new Date(),
     scene: '2',
@@ -495,6 +526,22 @@ function getUser() {
   });
 }
 
+function getAccountList() {
+  listAccountFinance().then(response => {
+    accountIds.value = response.rows
+  });
+}
+
+function matchAccount(accountId) {
+  if (accountId) {
+    let account = accountIds.value.find((el) => {
+      return el.id == accountId
+    })
+    return account.accounrName
+  }
+}
+
+getAccountList();
 getUser();
 getList();
 getUserList();

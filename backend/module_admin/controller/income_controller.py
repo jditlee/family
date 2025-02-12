@@ -51,8 +51,10 @@ async def add_money_income(
     add_income.update_time = datetime.now()
     add_income_result = await IncomeService.add_income_services(query_db, add_income)
     logger.info(add_income_result.message)
-
-    return ResponseUtil.success(msg=add_income_result.message)
+    if add_income_result.is_success:
+        return ResponseUtil.success(msg=add_income_result.message)
+    else:
+        return ResponseUtil.failure(msg=add_income_result.message)
 
 
 @incomeController.put('', dependencies=[Depends(CheckUserInterfaceAuth('money:income:edit'))])
@@ -68,7 +70,10 @@ async def edit_money_income(
     edit_income_result = await IncomeService.edit_income_services(query_db, edit_income)
     logger.info(edit_income_result.message)
 
-    return ResponseUtil.success(msg=edit_income_result.message)
+    if edit_income_result.is_success:
+        return ResponseUtil.success(msg=edit_income_result.message)
+    else:
+        return ResponseUtil.failure(msg=edit_income_result.message)
 
 
 @incomeController.delete('/{ids}', dependencies=[Depends(CheckUserInterfaceAuth('money:income:remove'))])

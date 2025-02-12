@@ -50,6 +50,7 @@ class ConsumeDao:
                 Consume.year == query_object.year if query_object.year else True,
                 Consume.month == query_object.month if query_object.month else True,
                 Consume.scene == query_object.scene if query_object.scene else True,
+                Consume.acc_id == query_object.acc_id if query_object.acc_id else True,
 
                 Consume.consume_time.between(
                     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
@@ -58,7 +59,7 @@ class ConsumeDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-            .order_by(Consume.id)
+            .order_by(Consume.consume_time.desc())
             .distinct()
         )
         consume_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)

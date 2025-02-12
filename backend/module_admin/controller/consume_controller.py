@@ -52,7 +52,10 @@ async def add_money_consume(
     add_consume_result = await ConsumeService.add_consume_services(query_db, add_consume)
     logger.info(add_consume_result.message)
 
-    return ResponseUtil.success(msg=add_consume_result.message)
+    if add_consume_result.is_success:
+        return ResponseUtil.success(msg=add_consume_result.message)
+    else:
+        return ResponseUtil.failure(msg=add_consume_result.message)
 
 
 @consumeController.put('', dependencies=[Depends(CheckUserInterfaceAuth('money:consume:edit'))])
@@ -68,7 +71,10 @@ async def edit_money_consume(
     edit_consume_result = await ConsumeService.edit_consume_services(query_db, edit_consume)
     logger.info(edit_consume_result.message)
 
-    return ResponseUtil.success(msg=edit_consume_result.message)
+    if edit_consume_result.is_success:
+        return ResponseUtil.success(msg=edit_consume_result.message)
+    else:
+        return ResponseUtil.failure(msg=edit_consume_result.message)
 
 
 @consumeController.delete('/{ids}', dependencies=[Depends(CheckUserInterfaceAuth('money:consume:remove'))])

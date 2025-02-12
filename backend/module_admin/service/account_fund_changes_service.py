@@ -3,7 +3,9 @@ from config.constant import CommonConstant
 from exceptions.exception import ServiceException
 from module_admin.dao.account_fund_changes_dao import AccountFundChangesDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
-from module_admin.entity.vo.account_fund_changes_vo import DeleteAccountFundChangesModel, AccountFundChangesModel, AccountFundChangesPageQueryModel
+from module_admin.entity.vo.account_fund_changes_vo import DeleteAccountFundChangesModel, AccountFundChangesModel, \
+    AccountFundChangesPageQueryModel
+from module_admin.service.account_finance_service import AccountFinanceService
 from utils.common_util import SqlalchemyUtil, CamelCaseUtil
 
 
@@ -24,7 +26,9 @@ class AccountFundChangesService:
         :param is_page: 是否开启分页
         :return: 账户记录列表信息对象
         """
-        account_fund_changes_list_result = await AccountFundChangesDao.get_account_fund_changes_list(query_db, query_object, is_page)
+        account_fund_changes_list_result = await AccountFundChangesDao.get_account_fund_changes_list(query_db,
+                                                                                                     query_object,
+                                                                                                     is_page)
 
         return account_fund_changes_list_result
 
@@ -37,13 +41,22 @@ class AccountFundChangesService:
         :param page_object: 账户记录对象
         :return: 新增账户记录校验结果
         """
-        try:
-            await AccountFundChangesDao.add_account_fund_changes_dao(query_db, page_object)
-            await query_db.commit()
-            return CrudResponseModel(is_success=True, message='新增成功')
-        except Exception as e:
-            await query_db.rollback()
-            raise e
+        in_acc_info = await AccountFinanceService.account_finance_detail_services(query_db, page_object.in_account_id)
+        out_acc_info = await AccountFinanceService.account_finance_detail_services(query_db, page_object.out_account_id)
+        if in_acc_info.id and out_acc_info.id:
+            in_acc_info.principal = in_acc_info.principal + page_object.amount
+            out_acc_info.principal = out_acc_info.principal - page_object.amount
+            try:
+                await AccountFinanceService.edit_account_finance_services(query_db, in_acc_info)
+                await AccountFinanceService.edit_account_finance_services(query_db, out_acc_info)
+                await AccountFundChangesDao.add_account_fund_changes_dao(query_db, page_object)
+                await query_db.commit()
+                return CrudResponseModel(is_success=True, message='新增成功')
+            except Exception as e:
+                await query_db.rollback()
+                raise e
+        else:
+            return CrudResponseModel(is_success=False, message='资金交易账户信息不存在！')
 
     @classmethod
     async def edit_account_fund_changes_services(cls, query_db: AsyncSession, page_object: AccountFundChangesModel):
@@ -57,6 +70,12 @@ class AccountFundChangesService:
         edit_account_fund_changes = page_object.model_dump(exclude_unset=True)
         account_fund_changes_info = await cls.account_fund_changes_detail_services(query_db, page_object.id)
         if account_fund_changes_info.id:
+            if account_fund_changes_info.amount != page_object.amount:
+                return CrudResponseModel(is_success=False, message='不允许修改交易金额！')
+            if account_fund_changes_info.in_account_id != page_object.in_account_id:
+                return CrudResponseModel(is_success=False, message='不允许修改入账账户！')
+            if account_fund_changes_info.out_account_id != page_object.out_account_id:
+                return CrudResponseModel(is_success=False, message='不允许修改出帐账户！')
             try:
                 await AccountFundChangesDao.edit_account_fund_changes_dao(query_db, edit_account_fund_changes)
                 await query_db.commit()
@@ -68,7 +87,8 @@ class AccountFundChangesService:
             raise ServiceException(message='账户记录不存在')
 
     @classmethod
-    async def delete_account_fund_changes_services(cls, query_db: AsyncSession, page_object: DeleteAccountFundChangesModel):
+    async def delete_account_fund_changes_services(cls, query_db: AsyncSession,
+                                                   page_object: DeleteAccountFundChangesModel):
         """
         删除service
 
@@ -80,7 +100,8 @@ class AccountFundChangesService:
             account_fund_changes_id_list = page_object.ids.split(',')
             try:
                 for account_fund_changes_id in account_fund_changes_id_list:
-                    await AccountFundChangesDao.delete_account_fund_changes_dao(query_db, AccountFundChangesModel(id=account_fund_changes_id))
+                    await AccountFundChangesDao.delete_account_fund_changes_dao(query_db, AccountFundChangesModel(
+                        id=account_fund_changes_id))
                 await query_db.commit()
                 return CrudResponseModel(is_success=True, message='删除成功')
             except Exception as e:

@@ -36,7 +36,8 @@ class Consume(Base):
     __tablename__ = 'consume'
 
     id = Column(Integer, primary_key=True, autoincrement=True, comment='开支记录表ID')
-    type_id = Column(Integer, nullable=False,comment='消费类型id，关联字典表（0衣1食2住3行）')
+    type_id = Column(Integer, nullable=False, comment='消费类型id，关联字典表（0衣1食2住3行）')
+    acc_id = Column(Integer, comment='账户id，关联账户表主键id')
     detail = Column(String(1024), comment='消费明细')
     amount = Column(Numeric(15, 2), nullable=False, comment='消费金额，支持更高精度')
     category = Column(String(255), comment='消费类别的子分类')
@@ -46,9 +47,9 @@ class Consume(Base):
     location = Column(String(255), comment='消费发生的地点')
     tags = Column(String(255), comment='消费记录的标签（如“重要”、“偶然消费”、“节假日”等），支持多标签（逗号分隔）')
     user_id = Column(Integer, comment='消费人id')
-    consume_time = Column(DateTime,nullable=False, comment='消费时间')
-    year = Column(Integer, nullable=False,comment='消费年份')
-    month = Column(Integer,nullable=False, comment='消费月份')
+    consume_time = Column(DateTime, nullable=False, comment='消费时间')
+    year = Column(Integer, nullable=False, comment='消费年份')
+    month = Column(Integer, nullable=False, comment='消费月份')
     scene = Column(Integer, comment='消费场景id，关联字典表（0旅游，1家居，2聚会，3工作）')
     create_by = Column(String(64), default='', comment='创建者')
     create_time = Column(DateTime, default=datetime.now(), comment='创建时间')

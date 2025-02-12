@@ -62,33 +62,41 @@
     </el-row>
 
     <el-table v-loading="loading" :data="account_transactionsList" @selection-change="handleSelectionChange">
+<!--      "id": 1,
+            "accountId": 1,
+            "currentBalance": 12345678.0,
+            "principal": 138888.0,
+            "maxBalance": 158888.0,
+            "createTime": "2025-02-12T14:21:17",
+            "diffOri": 12206790.0,
+            "diffMax": 12186790.0,
+            "diffPre": null,
+            "raiseOri": 8788.95,
+            "raiseMax": 7670.05,
+            "raisePre": null-->
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="账户" align="center" prop="accounrId" width="130">
         <template #default="scope">
           <span>{{ matchAccount(scope.row.accountId) }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="账户余额" align="center" prop="currentBalance" width="100"/>
-      <el-table-column label="创建者" align="center" prop="createBy" width="130">
-        <template #default="scope">
-          <span>{{ matchUserId(scope.row.createBy) }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="当前余额" align="center" prop="currentBalance" width="100"/>
+      <el-table-column label="本金差" align="center" prop="diffOri" width="100"/>
+      <el-table-column label="本金差百分比" align="center" prop="raiseOri" width="100"/>
+      <el-table-column label="上期差" align="center" prop="diffPre" width="100"/>
+      <el-table-column label="上期差百分比" align="center" prop="raisePre" width="100"/>
+      <el-table-column label="上年最高差" align="center" prop="diffMax" width="100"/>
+      <el-table-column label="上年最高差百分比" align="center" prop="raiseMax" width="100"/>
+
+      <el-table-column label="本金" align="center" prop="principal" width="100"/>
+      <el-table-column label="上年度最高余额" align="center" prop="maxBalance" width="100"/>
+
       <el-table-column label="创建时间" align="center" prop="createTime" width="160">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新者" align="center" prop="updateBy" width="130">
-        <template #default="scope">
-          <span>{{ matchUserId(scope.row.createBy) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="160">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
+
      <el-table-column label="备注" align="center" prop="remark" width="200"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">

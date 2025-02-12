@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config.constant import CommonConstant
 from exceptions.exception import ServiceException
 from module_admin.dao.income_dao import IncomeDao
+from module_admin.service.account_finance_service import AccountFinanceService
 from module_admin.entity.vo.common_vo import CrudResponseModel
 from module_admin.entity.vo.income_vo import DeleteIncomeModel, IncomeModel, IncomePageQueryModel
 from utils.common_util import SqlalchemyUtil
@@ -37,13 +38,19 @@ class IncomeService:
         :param page_object: 收入记录对象
         :return: 新增收入记录校验结果
         """
-        try:
-            await IncomeDao.add_income_dao(query_db, page_object)
-            await query_db.commit()
-            return CrudResponseModel(is_success=True, message='新增成功')
-        except Exception as e:
-            await query_db.rollback()
-            raise e
+        acc_info = await AccountFinanceService.account_finance_detail_services(query_db, page_object.acc_id)
+        if acc_info.id:
+            acc_info.principal = acc_info.principal + page_object.amount
+            try:
+                await AccountFinanceService.edit_account_finance_services(query_db, acc_info)
+                await IncomeDao.add_income_dao(query_db, page_object)
+                await query_db.commit()
+                return CrudResponseModel(is_success=True, message='录入成功')
+            except Exception as e:
+                await query_db.rollback()
+                raise e
+        else:
+            return CrudResponseModel(is_success=False, message='当前收入没有关联账户信息！')
 
     @classmethod
     async def edit_income_services(cls, query_db: AsyncSession, page_object: IncomeModel):
@@ -57,6 +64,10 @@ class IncomeService:
         edit_income = page_object.model_dump(exclude_unset=True)
         income_info = await cls.income_detail_services(query_db, page_object.id)
         if income_info.id:
+            if income_info.amount != page_object.amount:
+                return CrudResponseModel(is_success=False, message='不允许修改收入金额！')
+            if income_info.acc_id != page_object.acc_id:
+                return CrudResponseModel(is_success=False, message='不允许修改收入账户！')
             try:
                 await IncomeDao.edit_income_dao(query_db, edit_income)
                 await query_db.commit()

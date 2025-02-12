@@ -104,8 +104,8 @@
       </el-table-column>
       <el-table-column label="交易金额" align="center" prop="amount" width="130">
       </el-table-column>
-      <el-table-column label="账户余额" align="center" prop="balanceAfter" width="130">
-      </el-table-column>
+<!--      <el-table-column label="账户余额" align="center" prop="balanceAfter" width="130">-->
+<!--      </el-table-column>-->
       <el-table-column label="记录人" align="center" prop="createBy" width="130">
         <template #default="scope">
           <span>{{ matchUserId(scope.row.createBy) }}</span>
@@ -183,12 +183,12 @@
                                controls-position="right" ></el-input-number>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="账户余额" prop="balanceAfter">
-              <el-input-number placeholder="请输入账户余额" v-model="form.balanceAfter" :precision="2" :step="0.01"
-                               controls-position="right" ></el-input-number>
-            </el-form-item>
-          </el-col>
+<!--          <el-col :span="12">-->
+<!--            <el-form-item label="账户余额" prop="balanceAfter">-->
+<!--              <el-input-number placeholder="请输入账户余额" v-model="form.balanceAfter" :precision="2" :step="0.01"-->
+<!--                               controls-position="right" ></el-input-number>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
            <el-col :span="24">
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入备注"/>
@@ -275,7 +275,6 @@ function reset() {
     outAccountId: undefined,
     transactionTypeId: undefined,
     amount: 0,
-    balanceAfter: 0,
     remark: undefined,
   };
   proxy.resetForm("accountFundChangesRef");

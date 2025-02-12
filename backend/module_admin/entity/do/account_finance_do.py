@@ -27,7 +27,7 @@ create table account_finance
 
     accounr_name = Column(String(255), comment='账户名称')
     type_id = Column(Integer, comment='账户类型id,关联字典表')
-    max_balance = Column(Numeric(15, 2), default=0, comment='历史最高资金')
+    max_balance = Column(Numeric(15, 2), default=0, comment='上年度最高资金')
     principal = Column(Numeric(15, 2), default=0, comment='账户本金')
     user_id = Column(Integer, comment='账户所属家庭成员id')
 

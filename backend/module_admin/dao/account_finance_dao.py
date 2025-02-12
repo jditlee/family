@@ -49,7 +49,7 @@ class AccountFinanceDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-            .order_by(AccountFinance.id)
+            .order_by(AccountFinance.create_time.desc())
             .distinct()
         )
         account_finance_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)

@@ -49,8 +49,10 @@ async def add_money_account_fund_changes(
     add_account_fund_changes_result = await AccountFundChangesService.add_account_fund_changes_services(query_db, add_account_fund_changes)
     logger.info(add_account_fund_changes_result.message)
 
-    return ResponseUtil.success(msg=add_account_fund_changes_result.message)
-
+    if add_account_fund_changes_result.is_success:
+        return ResponseUtil.success(msg=add_account_fund_changes_result.message)
+    else:
+        return ResponseUtil.failure(msg=add_account_fund_changes_result.message)
 
 @account_fund_changesController.put('', dependencies=[Depends(CheckUserInterfaceAuth('money:account_fund_changes:edit'))])
 @Log(title='账户资金变动记录', business_type=BusinessType.UPDATE)
@@ -65,7 +67,10 @@ async def edit_money_account_fund_changes(
     edit_account_fund_changes_result = await AccountFundChangesService.edit_account_fund_changes_services(query_db, edit_account_fund_changes)
     logger.info(edit_account_fund_changes_result.message)
 
-    return ResponseUtil.success(msg=edit_account_fund_changes_result.message)
+    if edit_account_fund_changes_result.is_success:
+        return ResponseUtil.success(msg=edit_account_fund_changes_result.message)
+    else:
+        return ResponseUtil.failure(msg=edit_account_fund_changes_result.message)
 
 
 @account_fund_changesController.delete('/{ids}', dependencies=[Depends(CheckUserInterfaceAuth('money:account_fund_changes:remove'))])

@@ -49,7 +49,7 @@ class AccountFundChangesDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-            .order_by(AccountFundChanges.id)
+            .order_by(AccountFundChanges.create_time.desc())
             .distinct()
         )
         account_fund_changes_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)

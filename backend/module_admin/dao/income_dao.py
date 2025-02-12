@@ -44,6 +44,7 @@ class IncomeDao:
                 Income.year == query_object.year if query_object.year else True,
                 Income.month == query_object.month if query_object.month else True,
                 Income.source_id == query_object.source_id if query_object.source_id else True,
+                Income.acc_id == query_object.acc_id if query_object.acc_id else True,
 
                 Income.income_time.between(
                     datetime.combine(datetime.strptime(query_object.begin_time, '%Y-%m-%d'), time(00, 00, 00)),
@@ -52,7 +53,7 @@ class IncomeDao:
                 if query_object.begin_time and query_object.end_time
                 else True,
             )
-            .order_by(Income.id)
+            .order_by(Income.income_time.desc())
             .distinct()
         )
         income_list = await PageUtil.paginate(db, query, query_object.page_num, query_object.page_size, is_page)
