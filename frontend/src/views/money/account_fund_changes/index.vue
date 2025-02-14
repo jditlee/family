@@ -351,7 +351,7 @@ function handleDelete(row) {
   });
 }
 function getUserList() {
-  getUserListName({pageNum: 1, pageSize: 30}).then(response => {
+  getUserListName({pageNum: 1, pageSize: 300}).then(response => {
     userListName.value = response.rows;
   })
 }
@@ -368,7 +368,7 @@ function matchUserId(userId) {
 
 /** 匹配账户 */
 function getAccountList() {
-  listAccountFinance({pageNum: 1, pageSize: 30}).then(response => {
+  listAccountFinance({pageNum: 1, pageSize: 300}).then(response => {
     accountIds.value = response.rows;
   })
 }

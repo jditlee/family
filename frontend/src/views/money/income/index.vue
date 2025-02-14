@@ -158,11 +158,11 @@
       </el-table-column>
     </el-table>
 
-    <pagination
+     <pagination
         v-show="total > 0"
         :total="total"
-        :page="queryParams.pageNum"
-        :limit="queryParams.pageSize"
+        v-model:page="queryParams.page_num"
+        v-model:limit="queryParams.page_size"
         @pagination="getList"
     />
 
@@ -322,6 +322,7 @@ const data = reactive({
     income_type: undefined,
     income_time: undefined,
     source_id: undefined,
+    page_num: 1,
     page_size: 10,
   },
   rules: {
@@ -346,7 +347,7 @@ const {queryParams, form, rules} = toRefs(data);
 /** 查询公告列表 */
 function getList() {
   loading.value = true;
-  listIncome(proxy.addDateRange(queryParams.value, dateRange.value, '_time')).then(response => {
+  listIncome(queryParams.value, dateRange.value).then(response => {
     incomeList.value = response.rows;
     total.value = response.total;
     loading.value = false;
@@ -355,7 +356,7 @@ function getList() {
 
 /** 查询用户列表 */
 function getUserList() {
-  getUserListName({pageNum: 1, pageSize: 30}).then(response => {
+  getUserListName({pageNum: 1, pageSize: 300}).then(response => {
     userListName.value = response.rows;
   })
 }
@@ -369,6 +370,7 @@ function cancel() {
 /** 表单重置 */
 function reset() {
   form.value = {
+    id: undefined,
     type_id: '1',
     detail: '',
     amount: 0,
@@ -450,7 +452,7 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const incomeIds = row.id || ids.value
-  proxy.$modal.confirm('是否确认删除公告编号为"' + incomeIds + '"的数据项？').then(function () {
+  proxy.$modal.confirm('是否确认删除id为"' + incomeIds + '"的数据项？').then(function () {
     return delIncome(incomeIds);
   }).then(() => {
     getList();
@@ -477,7 +479,7 @@ function getUser() {
 }
 
 function getAccountList() {
-  listAccountFinance().then(response => {
+  listAccountFinance({pageNum: 1, pageSize: 300}).then(response => {
     accountIds.value = response.rows
   });
 }

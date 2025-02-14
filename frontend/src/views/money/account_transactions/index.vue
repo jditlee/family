@@ -62,18 +62,18 @@
     </el-row>
 
     <el-table v-loading="loading" :data="account_transactionsList" @selection-change="handleSelectionChange">
-<!--      "id": 1,
-            "accountId": 1,
-            "currentBalance": 12345678.0,
-            "principal": 138888.0,
-            "maxBalance": 158888.0,
-            "createTime": "2025-02-12T14:21:17",
-            "diffOri": 12206790.0,
-            "diffMax": 12186790.0,
-            "diffPre": null,
-            "raiseOri": 8788.95,
-            "raiseMax": 7670.05,
-            "raisePre": null-->
+      <!--      "id": 1,
+                  "accountId": 1,
+                  "currentBalance": 12345678.0,
+                  "principal": 138888.0,
+                  "maxBalance": 158888.0,
+                  "createTime": "2025-02-12T14:21:17",
+                  "diffOri": 12206790.0,
+                  "diffMax": 12186790.0,
+                  "diffPre": null,
+                  "raiseOri": 8788.95,
+                  "raiseMax": 7670.05,
+                  "raisePre": null-->
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="账户" align="center" prop="accounrId" width="130">
         <template #default="scope">
@@ -97,7 +97,7 @@
         </template>
       </el-table-column>
 
-     <el-table-column label="备注" align="center" prop="remark" width="200"/>
+      <el-table-column label="备注" align="center" prop="remark" width="200"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -113,8 +113,8 @@
     <pagination
         v-show="total > 0"
         :total="total"
-        :page="queryParams.pageNum"
-        :limit="queryParams.pageSize"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
         @pagination="getList"
     />
 
@@ -136,8 +136,9 @@
           </el-col>
           <el-col :span="20">
             <el-form-item label="账户当前余额" labelWidth="120" prop="currentBalance">
-              <el-input-number placeholder="请输入账户当前余额" v-model="form.currentBalance" :precision="2" :step="0.01"
-                               controls-position="right" ></el-input-number>
+              <el-input-number placeholder="请输入账户当前余额" v-model="form.currentBalance" :precision="2"
+                               :step="0.01"
+                               controls-position="right"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="20">
@@ -158,7 +159,13 @@
 </template>
 
 <script setup name="AccountTransactions">
-import {listAccountTransactions, getAccountTransactions, delAccountTransactions, addAccountTransactions, updateAccountTransactions,} from "@/api/money/account_transactions";
+import {
+  listAccountTransactions,
+  getAccountTransactions,
+  delAccountTransactions,
+  addAccountTransactions,
+  updateAccountTransactions,
+} from "@/api/money/account_transactions";
 import {getUserListName, getUserProfile} from '@/api/system/user'
 import {listAccountFinance} from '@/api/money/account_finance'
 
@@ -186,6 +193,7 @@ const data = reactive({
   form: {},
   queryParams: {
     accountId: '',
+    pageNum: 1,
     pageSize: 10,
   },
   rules: {
@@ -219,7 +227,7 @@ function getList() {
 
 /** 查询用户列表 */
 function getUserList() {
-  getUserListName({pageNum: 1, pageSize: 30}).then(response => {
+  getUserListName({pageNum: 1, pageSize: 300}).then(response => {
     userListName.value = response.rows;
   })
 }
@@ -327,16 +335,17 @@ function getUser() {
     currentUser.value = response.data.userId
   });
 }
+
 /** 获取账户列表 */
 function getAccountList() {
-  listAccountFinance().then(response => {
+  listAccountFinance({pageNum: 1, pageSize: 300}).then(response => {
     accountIds.value = response.rows
   });
 }
 
 function matchAccount(accountId) {
-  if(accountId) {
-    let account = accountIds.value.find((el)  => {
+  if (accountId) {
+    let account = accountIds.value.find((el) => {
       return el.id == accountId
     })
     return account.accounrName

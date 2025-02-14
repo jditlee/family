@@ -178,8 +178,8 @@
     <pagination
         v-show="total > 0"
         :total="total"
-        :page="queryParams.pageNum"
-        :limit="queryParams.pageSize"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
         @pagination="getList"
     />
 
@@ -367,6 +367,7 @@ const data = reactive({
     tags: undefined,
     status: undefined,
     consumeTime: undefined,
+    pageNum: 1,
     pageSize: 10,
   },
   rules: {
@@ -401,7 +402,7 @@ function getList() {
 
 /** 查询用户列表 */
 function getUserList() {
-  getUserListName({pageNum: 1, pageSize: 30}).then(response => {
+  getUserListName({pageNum: 1, pageSize: 300}).then(response => {
     userListName.value = response.rows;
   })
 }
@@ -527,7 +528,7 @@ function getUser() {
 }
 
 function getAccountList() {
-  listAccountFinance().then(response => {
+  listAccountFinance({pageNum: 1, pageSize: 300}).then(response => {
     accountIds.value = response.rows
   });
 }

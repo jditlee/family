@@ -9,7 +9,7 @@
             style="width: 200px"
             @keyup.enter="handleQuery"
         />
-        </el-form-item>
+      </el-form-item>
       <el-form-item label="账户类型" prop="typeId">
         <el-select clearable v-model="queryParams.typeId" style="width: 200px" placeholder="请选择账户类型">
           <el-option
@@ -20,7 +20,7 @@
           ></el-option>
         </el-select>
       </el-form-item>
-        <el-form-item label="账户人" prop="userId">
+      <el-form-item label="账户人" prop="userId">
         <el-select clearable v-model="queryParams.userId" style="width: 200px" placeholder="请选择消费人">
           <el-option
               v-for="dict in userListName"
@@ -82,7 +82,7 @@
 
     <el-table v-loading="loading" :data="account_financeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-       <el-table-column label="账户名称" align="center" prop="accounrName" :show-overflow-tooltip="true" width="130"/>
+      <el-table-column label="账户名称" align="center" prop="accounrName" :show-overflow-tooltip="true" width="130"/>
       <el-table-column label="账户类型" align="center" prop="typeId" width="100">
         <template #default="scope">
           <dict-tag :options="account_type" :value="scope.row.typeId"/>
@@ -105,7 +105,7 @@
           <span>{{ parseTime(scope.row.updateTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-     <el-table-column label="备注" align="center" prop="remark" width="200"/>
+      <el-table-column label="备注" align="center" prop="remark" width="200"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
@@ -121,8 +121,8 @@
     <pagination
         v-show="total > 0"
         :total="total"
-        :page="queryParams.pageNum"
-        :limit="queryParams.pageSize"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
         @pagination="getList"
     />
 
@@ -150,17 +150,17 @@
           <el-col :span="12">
             <el-form-item label="历史最高资金" label-width="100" prop="maxBalance">
               <el-input-number placeholder="请输入历史最高资金" v-model="form.maxBalance" :precision="2" :step="0.01"
-                               controls-position="right" ></el-input-number>
+                               controls-position="right"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="账户本金" prop="principal">
               <el-input-number placeholder="请输入账户本金" v-model="form.principal" :precision="2" :step="0.01"
-                               controls-position="right" ></el-input-number>
+                               controls-position="right"></el-input-number>
             </el-form-item>
           </el-col>
-         <el-col :span="12">
-         <el-form-item label="账户人" prop="userId">
+          <el-col :span="12">
+            <el-form-item label="账户人" prop="userId">
               <el-select clearable v-model="form.userId" placeholder="请选择账户人">
                 <el-option
                     v-for="dict in userListName"
@@ -189,7 +189,13 @@
 </template>
 
 <script setup name="AccountFinance">
-import {listAccountFinance, getAccountFinance, delAccountFinance, addAccountFinance, updateAccountFinance,} from "@/api/money/account_finance";
+import {
+  listAccountFinance,
+  getAccountFinance,
+  delAccountFinance,
+  addAccountFinance,
+  updateAccountFinance,
+} from "@/api/money/account_finance";
 import {getUserListName, getUserProfile} from '@/api/system/user'
 
 const {proxy} = getCurrentInstance();
@@ -218,6 +224,7 @@ const data = reactive({
     accounrName: '',
     typeId: '',
     userId: undefined,
+    pageNum: 1,
     pageSize: 10,
   },
   rules: {
@@ -253,7 +260,7 @@ function getList() {
 
 /** 查询用户列表 */
 function getUserList() {
-  getUserListName({pageNum: 1, pageSize: 30}).then(response => {
+  getUserListName({pageNum: 1, pageSize: 300}).then(response => {
     userListName.value = response.rows;
   })
 }
@@ -267,8 +274,7 @@ function cancel() {
 /** 表单重置 */
 function reset() {
   form.value = {
-   accounrName: '',
-    typeId: '1',
+    accounrName: '',
     maxBalance: undefined,
     principal: undefined,
     userId: currentUser.value,
