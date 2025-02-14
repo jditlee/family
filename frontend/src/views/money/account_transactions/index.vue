@@ -97,7 +97,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="备注" align="center" prop="remark" width="200"/>
+<!--      <el-table-column label="备注" align="center" prop="remark" width="200"/>-->
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
