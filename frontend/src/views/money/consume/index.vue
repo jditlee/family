@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch">
+    <el-form :model="querams" ref="queryRef" :inline="true" v-show="showSearch">
       <el-form-item label="消费账户" prop="accId">
         <el-select clearable v-model="queryParams.accId" style="width: 200px" placeholder="请选择账户">
           <el-option
@@ -148,6 +148,8 @@
         </template>
       </el-table-column>
       <el-table-column label="消费地点" align="center" prop="location" width="130"/>
+            <el-table-column label="消费地点" align="center" prop="remark" width="130"/>
+
       <el-table-column label="消费人" align="center" prop="userId" width="130">
         <template #default="scope">
           <span>{{ matchUserId(scope.row.userId) }}</span>
@@ -202,7 +204,7 @@
           <el-col :span="12">
             <el-form-item label="消费时间" prop="consumeTime">
               <el-date-picker v-model="form.consumeTime" align="right" type="date"
-                              placeholder="请选择日期"></el-date-picker>
+                              placeholder="请选择日期" :value-format="'yyyy-MM-dd'"  ></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span="12">
