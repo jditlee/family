@@ -203,8 +203,8 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="消费时间" prop="consumeTime">
-              <el-date-picker v-model="form.consumeTime" align="right" type="date"
-                              placeholder="请选择日期" :value-format="'yyyy-MM-dd'"  ></el-date-picker>
+              <el-date-picker v-model="form.consumeTime" align="right" type="date" value-format="YYYY-MM-DD"
+                              placeholder="请选择日期"  ></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span="12">
