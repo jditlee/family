@@ -116,7 +116,7 @@ cd RuoYi-Vue3-FastAPI
 #### 前端
 ```bash
 # 进入前端目录
-cd ruoyi-fastapi-frontend
+cd frontend
 
 # 安装依赖
 npm install 或 yarn --registry=https://registry.npmmirror.com
@@ -131,7 +131,7 @@ npm run dev 或 yarn dev
 #### 后端
 ```bash
 # 进入后端目录
-cd ruoyi-fastapi-backend
+cd backend
 
 # 如果使用的是MySQL数据库，请执行以下命令安装项目依赖环境
 pip3 install -r requirements.txt
