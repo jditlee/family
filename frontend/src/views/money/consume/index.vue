@@ -148,18 +148,18 @@
         </template>
       </el-table-column>
       <el-table-column label="消费地点" align="center" prop="location" width="130"/>
-            <el-table-column label="消费地点" align="center" prop="remark" width="130"/>
+            <el-table-column label="备注" align="center" prop="remark" width="130"/>
 
-      <el-table-column label="消费人" align="center" prop="userId" width="130">
+      <!-- <el-table-column label="消费人" align="center" prop="userId" width="130">
         <template #default="scope">
           <span>{{ matchUserId(scope.row.userId) }}</span>
         </template>
-      </el-table-column>
-      <el-table-column label="支付方式" align="center" prop="paymentId" width="130">
+      </el-table-column> -->
+      <!-- <el-table-column label="支付方式" align="center" prop="paymentId" width="130">
         <template #default="scope">
           <dict-tag :options="payment_method" :value="scope.row.paymentId"/>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="消费状态" align="center" prop="status" width="130">
         <template #default="scope">
           <dict-tag :options="consume_status" :value="scope.row.status"/>
@@ -189,9 +189,9 @@
     <el-dialog :title="title" v-model="open" width="780px" append-to-body>
       <el-form ref="consumeRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="20">
-            <el-form-item label="入账账户" labelWidth="120" prop="accId">
-              <el-select v-model="form.accId" placeholder="请选择账户ID">
+          <el-col :span="12">
+            <el-form-item label="消费账户" prop="accId">
+              <el-select v-model="form.accId" placeholder="请选择账户ID" :disabled="mode === 'edit'">
                 <el-option
                     v-for="dict in accountIds"
                     :key="dict.id"
@@ -204,7 +204,7 @@
           <el-col :span="12">
             <el-form-item label="消费时间" prop="consumeTime">
               <el-date-picker v-model="form.consumeTime" align="right" type="date" value-format="YYYY-MM-DD"
-                              placeholder="请选择日期"  ></el-date-picker>
+                              placeholder="请选择日期"></el-date-picker>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -309,7 +309,7 @@
           </el-col>
 
 
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入备注"/>
             </el-form-item>
@@ -353,6 +353,7 @@ const title = ref("");
 const dateRange = ref([]);
 const currentUser = ref("")
 const accountIds = ref([])
+const mode = ref("")
 
 const data = reactive({
   form: {},
@@ -386,7 +387,8 @@ const data = reactive({
         },
         trigger: 'blur'
       }
-    ]
+    ],
+    accId: [{required: true, message: '消费账户不能为空', trigger: 'blur'}]
   },
 });
 
@@ -461,6 +463,7 @@ function handleAdd() {
   reset();
   open.value = true;
   title.value = "新增消费";
+  mode.value = "add"
 }
 
 /**修改按钮操作 */
@@ -476,6 +479,7 @@ function handleUpdate(row) {
     form.value.userId = parseInt(form.value.userId)
     open.value = true;
     title.value = "修改消费";
+    mode.value = "edit"
   });
 }
 
