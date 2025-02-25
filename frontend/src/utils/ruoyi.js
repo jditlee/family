@@ -243,3 +243,26 @@ export function getNormalPath(p) {
 export function blobValidate(data) {
   return data.type !== 'application/json'
 }
+
+// 根据数字大小显示字体颜色红绿
+export function getCellStyle(value) {
+  // 计算颜色强度
+  const max = 1000000;
+  const min = -1000000;
+  const range = max - min;
+  // 将值映射到 0 到 1 之间
+  const normalizedValue = (value - min) / range;
+  // 根据值的正负决定颜色
+  if (value < 0) {
+    // 负数越大，绿色越深
+    const greenIntensity = Math.round(255 * (1 - normalizedValue));
+    return { color: `rgb(0, ${greenIntensity}, 0)` };
+  } else if (value > 0) {
+    // 正数越大，红色越深
+    const redIntensity = Math.round(255 * normalizedValue);
+    return { color: `rgb(${redIntensity}, 0, 0)` };
+  } else {
+    // 值为 0 时，使用默认颜色
+    return { color: 'black' };
+  }
+}

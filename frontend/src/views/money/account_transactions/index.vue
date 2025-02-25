@@ -81,13 +81,36 @@
         </template>
       </el-table-column>
       <el-table-column label="当前余额" align="center" prop="currentBalance" width="100"/>
-      <el-table-column label="本金差" align="center" prop="diffOri" width="100"/>
-      <el-table-column label="本金差百分比" align="center" prop="raiseOri" width="100"/>
-      <el-table-column label="上期差" align="center" prop="diffPre" width="100"/>
-      <el-table-column label="上期差百分比" align="center" prop="raisePre" width="100"/>
-      <el-table-column label="上年最高差" align="center" prop="diffMax" width="100"/>
-      <el-table-column label="上年最高差百分比" align="center" prop="raiseMax" width="100"/>
-
+      <el-table-column label="本金差" align="center" prop="diffOri" width="100">
+        <template #default="scope">
+          <span :style="getCellStyle(scope.row.diffOri)">{{ scope.row.diffOri }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="本金差百分比" align="center" prop="raiseOri" width="100">
+        <template #default="scope">
+          <span :style="getCellStyle(scope.row.raiseOri)">{{ scope.row.raiseOri }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="上期差" align="center" prop="diffPre" width="100">
+        <template #default="scope">
+          <span :style="getCellStyle(scope.row.diffPre)">{{ scope.row.diffPre }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="上期差百分比" align="center" prop="raisePre" width="100">
+        <template #default="scope">
+          <span :style="getCellStyle(scope.row.raisePre)">{{ scope.row.raisePre }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="上年最高差" align="center" prop="diffMax" width="100">
+        <template #default="scope">
+          <span :style="getCellStyle(scope.row.diffMax)">{{ scope.row.diffMax }} </span>
+        </template>
+      </el-table-column>
+      <el-table-column label="上年最高差百分比" align="center" prop="raiseMax" width="100">
+        <template #default="scope">
+          <span :style="getCellStyle(scope.row.raiseMax)">{{ scope.row.raiseMax }} </span>
+        </template>
+      </el-table-column>
       <el-table-column label="本金" align="center" prop="principal" width="100"/>
       <el-table-column label="上年度最高余额" align="center" prop="maxBalance" width="100"/>
 
@@ -169,6 +192,7 @@ import {
 import {getUserListName, getUserProfile} from '@/api/system/user'
 import {listAccountFinance} from '@/api/money/account_finance'
 import { onMounted } from "vue";
+import { getCellStyle } from '@/utils/ruoyi'
 
 const {proxy} = getCurrentInstance();
 const {
