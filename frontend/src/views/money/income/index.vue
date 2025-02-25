@@ -115,21 +115,21 @@
       <el-table-column label="收入明细" align="center" prop="detail" :show-overflow-tooltip="true" width="130"/>
       <el-table-column label="收入金额" align="center" prop="amount" width="130">
       </el-table-column>
-      <el-table-column label="货币类型" align="center" prop="currency" width="130">
+      <!-- <el-table-column label="货币类型" align="center" prop="currency" width="130">
         <template #default="scope">
           <dict-tag :options="money_type" :value="scope.row.currency"/>
         </template>
-      </el-table-column>
-      <el-table-column label="支付方式" align="center" prop="paymentMethod" width="130">
+      </el-table-column> -->
+      <!-- <el-table-column label="支付方式" align="center" prop="paymentMethod" width="130">
         <template #default="scope">
           <dict-tag :options="payment_method" :value="scope.row.paymentMethod"/>
         </template>
-      </el-table-column>
-      <el-table-column label="入账人" align="center" prop="userId" width="130">
+      </el-table-column> -->
+      <!-- <el-table-column label="入账人" align="center" prop="userId" width="130">
         <template #default="scope">
           <span>{{ matchUserId(scope.row.userId) }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="收入时间" align="center" prop="incomeTime" width="160">
         <template #default="scope">
           <span>{{ parseTime(scope.row.incomeTime, '{y}-{m}-{d}') }}</span>
@@ -140,11 +140,11 @@
           <dict-tag :options="income_source" :value="scope.row.sourceId"/>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="160">
+      <!-- <el-table-column label="创建时间" align="center" prop="createTime" width="160">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column label="备注" align="center" prop="remark" width="300"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
@@ -170,9 +170,9 @@
     <el-dialog :title="title" v-model="open" width="780px" append-to-body>
       <el-form ref="incomeRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
-          <el-col :span="20">
-            <el-form-item label="入账账户" labelWidth="120" prop="acc_id">
-              <el-select v-model="form.acc_id" placeholder="请选择账户ID">
+          <el-col :span="12">
+            <el-form-item label="入账账户" prop="acc_id">
+              <el-select v-model="form.acc_id" placeholder="请选择账户ID" :disabled="mode === 'edit'">
                 <el-option
                     v-for="dict in accountIds"
                     :key="dict.id"
@@ -265,7 +265,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入备注"/>
             </el-form-item>
@@ -308,6 +308,7 @@ const title = ref("");
 const dateRange = ref([]);
 const currentUser = ref("")
 const accountIds = ref([])
+const mode = ref("")
 
 
 const data = reactive({
@@ -338,7 +339,10 @@ const data = reactive({
         },
         trigger: 'blur'
       }
-    ]
+    ],
+    acc_id: [{required: true, message: '入账账户不能为空'}]
+
+    
   },
 });
 
@@ -410,6 +414,7 @@ function handleAdd() {
   reset();
   open.value = true;
   title.value = "新增收入";
+  mode.value = 'add'
 }
 
 /**修改按钮操作 */
@@ -425,6 +430,7 @@ function handleUpdate(row) {
 
     open.value = true;
     title.value = "修改收入";
+    mode.value = 'edit'
   });
 }
 

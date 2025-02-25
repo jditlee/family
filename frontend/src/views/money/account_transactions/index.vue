@@ -119,12 +119,12 @@
     />
 
     <!-- 添加或修改公告对话框 -->
-    <el-dialog :title="title" v-model="open" width="780px" append-to-body>
-      <el-form ref="account_transactionsRef" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="20">
-            <el-form-item label="账户ID" labelWidth="120" prop="accountId">
-              <el-select v-model="form.accountId" placeholder="请选择账户ID">
+    <el-dialog :title="title" v-model="open" width="800px" append-to-body>
+      <el-form ref="account_transactionsRef" :model="form" label-width="80px">
+        <el-row v-for="(item, index) in form" :key="index">
+            <el-col :span="8">
+            <el-form-item label="账户ID" labelWidth="120" :prop="'form['+ index + '].accountId'">
+              <el-select v-model="item.accountId" placeholder="请选择账户ID">
                 <el-option
                     v-for="dict in accountIds"
                     :key="dict.id"
@@ -134,16 +134,16 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="20">
-            <el-form-item label="账户当前余额" labelWidth="120" prop="currentBalance">
-              <el-input-number placeholder="请输入账户当前余额" v-model="form.currentBalance" :precision="2"
+          <el-col :span="8">
+            <el-form-item label="账户当前余额" labelWidth="120" :prop="'form[' + index + '].currentBalance'">
+              <el-input-number placeholder="请输入账户当前余额" v-model="item.currentBalance" :precision="2"
                                :step="0.01"
                                controls-position="right"></el-input-number>
             </el-form-item>
           </el-col>
-          <el-col :span="20">
+          <el-col :span="8">
             <el-form-item label="备注" labelWidth="120" prop="remark">
-              <el-input v-model="form.remark" width="200" type="textarea" placeholder="请输入备注"/>
+              <el-input v-model="item.remark" width="300" placeholder="请输入备注"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -168,6 +168,7 @@ import {
 } from "@/api/money/account_transactions";
 import {getUserListName, getUserProfile} from '@/api/system/user'
 import {listAccountFinance} from '@/api/money/account_finance'
+import { onMounted } from "vue";
 
 const {proxy} = getCurrentInstance();
 const {
@@ -188,29 +189,16 @@ const title = ref("");
 const dateRange = ref([]);
 const currentUser = ref("")
 const accountIds = ref([])
+const mode = ref("")
 
 const data = reactive({
-  form: {},
+  form: [],
   queryParams: {
     accountId: '',
     pageNum: 1,
     pageSize: 10,
   },
-  rules: {
-    currentBalance: [
-      {required: true, message: '收入金额不能为空'},
-      {
-        validator: (rule, value, callback) => {
-          if (value === '' || value <= 0) {
-            callback(new Error('收入金额必须大于 0'));
-          } else {
-            callback();
-          }
-        },
-        trigger: 'blur'
-      }
-    ]
-  },
+  rules: {}
 });
 
 const {queryParams, form, rules} = toRefs(data);
@@ -231,7 +219,27 @@ function getUserList() {
     userListName.value = response.rows;
   })
 }
-
+ const generateRules = () => {
+  rules.value = {}
+      form.value.forEach((item, index) => {
+        rules.value[`form[${index}].accountId`] = [
+          { required: true, message: '账户不能为空', trigger: ['blur', 'change'] }
+        ];
+        rules.value[`form[${index}].currentBalance`] = [
+          { required: true, message: '收入金额不能为空', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (value === '' || value <= 0) {
+                callback(new Error('收入金额必须大于 0'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
+        ]
+      });
+    };
 /** 取消按钮 */
 function cancel() {
   open.value = false;
@@ -239,12 +247,14 @@ function cancel() {
 }
 
 /** 表单重置 */
-function reset() {
-  form.value = {
-    accountId: '',
-    currentBalance: '',
-    remark: ''
-  };
+function reset(param) {
+    form.value = 
+  [ 
+    { accountId: '',currentBalance: 0, remark: ''},
+    { accountId: '',currentBalance: 0, remark: ''},
+    { accountId: '',currentBalance: 0, remark: ''}
+  ];
+  generateRules()
   proxy.resetForm("account_transactionsRef");
 }
 
@@ -271,16 +281,18 @@ function handleSelectionChange(selection) {
 /** 新增按钮操作 */
 function handleAdd() {
   reset();
+  mode.value = 'add'
   open.value = true;
   title.value = "新增消费";
 }
 
 /**修改按钮操作 */
 function handleUpdate(row) {
+  mode.value = 'edit'
   reset();
   const account_transactionsId = row.id || ids.value;
   getAccountTransactions(account_transactionsId).then(response => {
-    form.value = response.data;
+    form.value = [response.data];
     open.value = true;
     title.value = "修改消费";
   });
@@ -288,20 +300,37 @@ function handleUpdate(row) {
 
 /** 提交按钮 */
 function submitForm() {
-  proxy.$refs["account_transactionsRef"].validate(valid => {
+  // proxy.$nextTick(() => {
+    
+  // })
+  console.log(form.value)
+  proxy.$refs["account_transactionsRef"].validate(async valid => {
     if (valid) {
-      if (form.value.id != undefined) {
-        updateAccountTransactions(form.value).then(response => {
+      if (form.value[0].id != undefined) {
+        try {
+          await updateAccountTransactions(form.value[0])
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
-        });
+        }catch(err) {
+          proxy.$modal.msgSuccess(err)
+        }
       } else {
-        addAccountTransactions(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          getList();
-        });
+        try {
+          for(let i = 0; i < form.value.length; i++) {
+            setTimeout(async() => {
+                 await addAccountTransactions(form.value[i])
+                 if( i === form.value.length- 1) {
+                 proxy.$modal.msgSuccess("新增成功");
+                 open.value = false;
+                 getList();
+                 }
+            },1500)
+          }
+          
+        }catch(err) {
+
+        } 
       }
     }
   });
@@ -344,6 +373,7 @@ function getAccountList() {
 }
 
 function matchAccount(accountId) {
+  console.log(accountId)
   if (accountId) {
     let account = accountIds.value.find((el) => {
       return el.id == accountId
@@ -356,4 +386,5 @@ getAccountList();
 getUser();
 getList();
 getUserList();
+
 </script>
