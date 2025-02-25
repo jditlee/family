@@ -142,35 +142,113 @@
     />
 
     <!-- 添加或修改公告对话框 -->
-    <el-dialog :title="title" v-model="open" width="800px" append-to-body>
-      <el-form ref="account_transactionsRef" :model="form" label-width="80px">
-        <el-row v-for="(item, index) in form" :key="index">
-            <el-col :span="8">
-            <el-form-item label="账户ID" labelWidth="120" :prop="'form['+ index + '].accountId'">
-              <el-select v-model="item.accountId" placeholder="请选择账户ID">
-                <el-option
+<!--    <el-dialog :title="title" v-model="open" width="800px" append-to-body>-->
+<!--      <el-form ref="account_transactionsRef" :model="form" label-width="80px">-->
+<!--        <el-row v-for="(item, index) in form" :key="index">-->
+<!--            <el-col :span="8">-->
+<!--            <el-form-item label="账户ID" labelWidth="120" :prop="'form['+ index + '].accountId'">-->
+<!--              <el-select v-model="item.accountId" placeholder="请选择账户ID">-->
+<!--                <el-option-->
+<!--                    v-for="dict in accountIds"-->
+<!--                    :key="dict.id"-->
+<!--                    :label="dict.accounrName"-->
+<!--                    :value="dict.id"-->
+<!--                ></el-option>-->
+<!--              </el-select>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--          <el-col :span="8">-->
+<!--            <el-form-item label="账户当前余额" labelWidth="120" :prop="'form[' + index + '].currentBalance'">-->
+<!--              <el-input-number placeholder="请输入账户当前余额" v-model="item.currentBalance" :precision="2"-->
+<!--                               :step="0.01"-->
+<!--                               controls-position="right"></el-input-number>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--          <el-col :span="8">-->
+<!--            <el-form-item label="备注" labelWidth="120" prop="remark">-->
+<!--              <el-input v-model="item.remark" width="300" placeholder="请输入备注"/>-->
+<!--            </el-form-item>-->
+<!--          </el-col>-->
+<!--        </el-row>-->
+<!--      </el-form>-->
+<!--      <template #footer>-->
+<!--        <div class="dialog-footer">-->
+<!--          <el-button type="primary" @click="submitForm">确 定</el-button>-->
+<!--          <el-button @click="cancel">取 消</el-button>-->
+<!--        </div>-->
+<!--      </template>-->
+<!--    </el-dialog>-->
+     <!-- 添加或修改公告对话框 -->
+    <el-dialog :title="title" v-model="open" width="780px" append-to-body>
+      <el-form ref="account_transactionsRef" :model="form" :rules="rules" label-width="80px">
+        <div v-for="(item, index) in form.items" :key="index">
+          <el-row :gutter="20" class="mb-8">
+            <el-col :span="18">
+              <el-form-item
+                :label="'账户ID'"
+                :prop="'items.' + index + '.accountId'"
+                :rules="rules.accountId"
+                label-width="120"
+              >
+                <el-select v-model="item.accountId" placeholder="请选择账户ID" style="width: 100%">
+                  <el-option
                     v-for="dict in accountIds"
                     :key="dict.id"
                     :label="dict.accounrName"
                     :value="dict.id"
-                ></el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="账户当前余额" labelWidth="120" :prop="'form[' + index + '].currentBalance'">
-              <el-input-number placeholder="请输入账户当前余额" v-model="item.currentBalance" :precision="2"
-                               :step="0.01"
-                               controls-position="right"></el-input-number>
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="备注" labelWidth="120" prop="remark">
-              <el-input v-model="item.remark" width="300" placeholder="请输入备注"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
+                  ></el-option>
+                </el-select>
+              </el-form-item>
+
+              <el-form-item
+                :label="'当前余额'"
+                :prop="'items.' + index + '.currentBalance'"
+                :rules="rules.currentBalance"
+                label-width="120"
+              >
+                <el-input-number
+                  v-model="item.currentBalance"
+                  placeholder="请输入账户当前余额"
+                  :precision="2"
+                  :step="0.01"
+                  controls-position="right"
+                  style="width: 100%"
+                ></el-input-number>
+              </el-form-item>
+
+              <el-form-item
+                :label="'备注'"
+                :prop="'items.' + index + '.remark'"
+                label-width="120"
+              >
+                <el-input v-model="item.remark" type="textarea" placeholder="请输入备注"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="4" class="pt-4">
+              <el-button
+                v-if="form.items.length > 1 || index > 0"
+                @click="removeRow(index)"
+                icon="Delete"
+                circle
+                plain
+                type="danger"
+              />
+            </el-col>
+          </el-row>
+          <el-divider v-if="index < form.items.length - 1"/>
+        </div>
+
+        <div class="text-center mt-16">
+          <el-button
+            type="primary"
+            icon="Plus"
+            @click="addRow"
+            link
+          >新增一行</el-button>
+        </div>
       </el-form>
+
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -213,16 +291,36 @@ const title = ref("");
 const dateRange = ref([]);
 const currentUser = ref("")
 const accountIds = ref([])
-const mode = ref("")
+
+const mode = ref('add') // 添加模式状态
 
 const data = reactive({
-  form: [],
+  form: {
+    items: [] // 修改为数组结构存储多行数据
+  },
   queryParams: {
     accountId: '',
     pageNum: 1,
     pageSize: 10,
   },
-  rules: {}
+  rules: {
+    accountId: [
+      { required: true, message: '请选择账户', trigger: 'blur' }
+    ],
+    currentBalance: [
+      { required: true, message: '收入金额不能为空' },
+      {
+        validator: (rule, value, callback) => {
+          if (value === '' || value <= 0) {
+            callback(new Error('收入金额必须大于 0'));
+          } else {
+            callback();
+          }
+        },
+        trigger: 'blur'
+      }
+    ]
+  },
 });
 
 const {queryParams, form, rules} = toRefs(data);
@@ -271,15 +369,28 @@ function cancel() {
 }
 
 /** 表单重置 */
-function reset(param) {
-    form.value = 
-  [ 
-    { accountId: '',currentBalance: 0, remark: ''},
-    { accountId: '',currentBalance: 0, remark: ''},
-    { accountId: '',currentBalance: 0, remark: ''}
-  ];
-  generateRules()
+// 表单重置
+function reset() {
+  form.value.items = [{
+    accountId: '',
+    currentBalance: '',
+    remark: ''
+  }];
   proxy.resetForm("account_transactionsRef");
+}
+
+// 新增行
+function addRow() {
+  form.value.items.push({
+    accountId: '',
+    currentBalance: '',
+    remark: ''
+  });
+}
+
+// 删除行
+function removeRow(index) {
+  form.value.items.splice(index, 1);
 }
 
 /** 搜索按钮操作 */
@@ -311,50 +422,39 @@ function handleAdd() {
 }
 
 /**修改按钮操作 */
+
+// 修改按钮操作
 function handleUpdate(row) {
   mode.value = 'edit'
   reset();
   const account_transactionsId = row.id || ids.value;
   getAccountTransactions(account_transactionsId).then(response => {
-    form.value = [response.data];
+    form.value.items = [response.data]; // 修改为数组形式
     open.value = true;
-    title.value = "修改消费";
+    title.value = "修改流水";
   });
 }
 
 /** 提交按钮 */
-function submitForm() {
-  // proxy.$nextTick(() => {
-    
-  // })
-  console.log(form.value)
+
+// 提交按钮
+async function submitForm() {
   proxy.$refs["account_transactionsRef"].validate(async valid => {
     if (valid) {
-      if (form.value[0].id != undefined) {
-        try {
-          await updateAccountTransactions(form.value[0])
+      try {
+        if (mode.value === 'edit') {
+          await updateAccountTransactions(form.value.items[0]);
           proxy.$modal.msgSuccess("修改成功");
-          open.value = false;
-          getList();
-        }catch(err) {
-          proxy.$modal.msgSuccess(err)
-        }
-      } else {
-        try {
-          for(let i = 0; i < form.value.length; i++) {
-            setTimeout(async() => {
-                 await addAccountTransactions(form.value[i])
-                 if( i === form.value.length- 1) {
-                 proxy.$modal.msgSuccess("新增成功");
-                 open.value = false;
-                 getList();
-                 }
-            },1500)
+        } else {
+          for (const item of form.value.items) {
+            await addAccountTransactions(item);
           }
-          
-        }catch(err) {
-
-        } 
+          proxy.$modal.msgSuccess(`成功添加${form.value.items.length}条记录`);
+        }
+        open.value = false;
+        getList();
+      } catch (err) {
+        proxy.$modal.msgError(err.message || '操作失败');
       }
     }
   });
@@ -412,3 +512,11 @@ getList();
 getUserList();
 
 </script>
+<style scoped>
+.mt-16 {
+  margin-top: 16px;
+}
+.pt-4 {
+  padding-top: 4px;
+}
+</style>
