@@ -118,6 +118,22 @@ class CachePathConfig:
     PATH = os.path.join(os.path.abspath(os.getcwd()), 'caches')
     PATHSTR = 'caches'
 
+class GenSettings:
+    """
+    代码生成配置
+    """
+
+    author = 'insistence'
+    package_name = 'module_admin.system'
+    auto_remove_pre = False
+    table_prefix = 'sys_'
+    allow_overwrite = False
+
+    GEN_PATH = 'vf_admin/gen_path'
+
+    def __init__(self):
+        if not os.path.exists(self.GEN_PATH):
+            os.makedirs(self.GEN_PATH)
 
 class GetConfig:
     """
@@ -150,6 +166,14 @@ class GetConfig:
         """
         # 实例化数据库配置模型
         return DataBaseSettings()
+
+    @lru_cache()
+    def get_gen_config(self):
+        """
+        获取代码生成配置
+        """
+        # 实例化代码生成配置
+        return GenSettings()
 
     @lru_cache()
     def get_redis_config(self):
@@ -204,5 +228,7 @@ JwtConfig = get_config.get_jwt_config()
 DataBaseConfig = get_config.get_database_config()
 # Redis配置
 RedisConfig = get_config.get_redis_config()
+# 代码生成配置
+GenConfig = get_config.get_gen_config()
 # 上传配置
 UploadConfig = get_config.get_upload_config()

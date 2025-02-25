@@ -22,6 +22,8 @@ from module_admin.controller.post_controler import postController
 from module_admin.controller.role_controller import roleController
 from module_admin.controller.server_controller import serverController
 from module_admin.controller.user_controller import userController
+from module_generator.controller.gen_controller import genController
+
 from module_admin.controller.consume_controller import consumeController
 from module_admin.controller.income_controller import incomeController
 from module_admin.controller.account_finance_controller import account_financeController
@@ -63,6 +65,7 @@ handle_middleware(app)
 # 加载全局异常处理方法
 handle_exception(app)
 
+
 # 加载路由列表
 controller_list = [
     {'router': loginController, 'tags': ['登录模块']},
@@ -81,6 +84,7 @@ controller_list = [
     {'router': serverController, 'tags': ['系统监控-菜单管理']},
     {'router': cacheController, 'tags': ['系统监控-缓存监控']},
     {'router': commonController, 'tags': ['通用模块']},
+    {'router': genController, 'tags': ['代码生成']},
     {'router': consumeController, 'tags': ['小金库-开支记录管理']},
     {'router': incomeController, 'tags': ['小金库-收入记录管理']},
     {'router': account_financeController, 'tags': ['小金库-账户记录管理']},
