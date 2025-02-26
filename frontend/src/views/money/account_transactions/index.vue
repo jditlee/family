@@ -62,25 +62,13 @@
     </el-row>
 
     <el-table v-loading="loading" :data="account_transactionsList" @selection-change="handleSelectionChange">
-      <!--      "id": 1,
-                  "accountId": 1,
-                  "currentBalance": 12345678.0,
-                  "principal": 138888.0,
-                  "maxBalance": 158888.0,
-                  "createTime": "2025-02-12T14:21:17",
-                  "diffOri": 12206790.0,
-                  "diffMax": 12186790.0,
-                  "diffPre": null,
-                  "raiseOri": 8788.95,
-                  "raiseMax": 7670.05,
-                  "raisePre": null-->
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="账户" align="center" prop="accounrId" width="130">
         <template #default="scope">
           <span>{{ matchAccount(scope.row.accountId) }} </span>
         </template>
       </el-table-column>
-      <el-table-column label="当前余额" align="center" prop="currentBalance" width="100"/>
+      <el-table-column :style="'background: yellow'" label="当前余额" align="center" prop="currentBalance" width="100"/>
       <el-table-column label="本金差" align="center" prop="diffOri" width="100">
         <template #default="scope">
           <span :style="getCellStyle(scope.row.diffOri)">{{ scope.row.diffOri }} </span>
@@ -140,55 +128,16 @@
         v-model:limit="queryParams.pageSize"
         @pagination="getList"
     />
-
-    <!-- 添加或修改公告对话框 -->
-<!--    <el-dialog :title="title" v-model="open" width="800px" append-to-body>-->
-<!--      <el-form ref="account_transactionsRef" :model="form" label-width="80px">-->
-<!--        <el-row v-for="(item, index) in form" :key="index">-->
-<!--            <el-col :span="8">-->
-<!--            <el-form-item label="账户ID" labelWidth="120" :prop="'form['+ index + '].accountId'">-->
-<!--              <el-select v-model="item.accountId" placeholder="请选择账户ID">-->
-<!--                <el-option-->
-<!--                    v-for="dict in accountIds"-->
-<!--                    :key="dict.id"-->
-<!--                    :label="dict.accounrName"-->
-<!--                    :value="dict.id"-->
-<!--                ></el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </el-col>-->
-<!--          <el-col :span="8">-->
-<!--            <el-form-item label="账户当前余额" labelWidth="120" :prop="'form[' + index + '].currentBalance'">-->
-<!--              <el-input-number placeholder="请输入账户当前余额" v-model="item.currentBalance" :precision="2"-->
-<!--                               :step="0.01"-->
-<!--                               controls-position="right"></el-input-number>-->
-<!--            </el-form-item>-->
-<!--          </el-col>-->
-<!--          <el-col :span="8">-->
-<!--            <el-form-item label="备注" labelWidth="120" prop="remark">-->
-<!--              <el-input v-model="item.remark" width="300" placeholder="请输入备注"/>-->
-<!--            </el-form-item>-->
-<!--          </el-col>-->
-<!--        </el-row>-->
-<!--      </el-form>-->
-<!--      <template #footer>-->
-<!--        <div class="dialog-footer">-->
-<!--          <el-button type="primary" @click="submitForm">确 定</el-button>-->
-<!--          <el-button @click="cancel">取 消</el-button>-->
-<!--        </div>-->
-<!--      </template>-->
-<!--    </el-dialog>-->
-     <!-- 添加或修改公告对话框 -->
-    <el-dialog :title="title" v-model="open" width="780px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="850px" append-to-body>
       <el-form ref="account_transactionsRef" :model="form" :rules="rules" label-width="80px">
         <div v-for="(item, index) in form.items" :key="index">
-          <el-row :gutter="20" class="mb-8">
-            <el-col :span="18">
+          <el-row :gutter="24" class="mb-8">
+            <el-col :span="7">
               <el-form-item
                 :label="'账户ID'"
                 :prop="'items.' + index + '.accountId'"
                 :rules="rules.accountId"
-                label-width="120"
+                label-width="80"
               >
                 <el-select v-model="item.accountId" placeholder="请选择账户ID" style="width: 100%">
                   <el-option
@@ -199,12 +148,14 @@
                   ></el-option>
                 </el-select>
               </el-form-item>
-
+              
+            </el-col>
+            <el-col :span="7">
               <el-form-item
                 :label="'当前余额'"
                 :prop="'items.' + index + '.currentBalance'"
                 :rules="rules.currentBalance"
-                label-width="120"
+                label-width="80"
               >
                 <el-input-number
                   v-model="item.currentBalance"
@@ -215,23 +166,22 @@
                   style="width: 100%"
                 ></el-input-number>
               </el-form-item>
-
+            </el-col>
+            <el-col :span="7">
               <el-form-item
                 :label="'备注'"
                 :prop="'items.' + index + '.remark'"
-                label-width="120"
+                label-width="80"
               >
-                <el-input v-model="item.remark" type="textarea" placeholder="请输入备注"/>
+                <el-input v-model="item.remark" placeholder="请输入备注"/>
               </el-form-item>
             </el-col>
-
-            <el-col :span="4" class="pt-4">
+            <el-col :span="3" class="pt-4">
               <el-button
                 v-if="form.items.length > 1 || index > 0"
                 @click="removeRow(index)"
                 icon="Delete"
-                circle
-                plain
+                link
                 type="danger"
               />
             </el-col>
@@ -239,7 +189,7 @@
           <el-divider v-if="index < form.items.length - 1"/>
         </div>
 
-        <div class="text-center mt-16">
+        <div class="text-center mt-16" v-show="mode === 'add'">
           <el-button
             type="primary"
             icon="Plus"
@@ -248,7 +198,6 @@
           >新增一行</el-button>
         </div>
       </el-form>
-
       <template #footer>
         <div class="dialog-footer">
           <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -341,27 +290,6 @@ function getUserList() {
     userListName.value = response.rows;
   })
 }
- const generateRules = () => {
-  rules.value = {}
-      form.value.forEach((item, index) => {
-        rules.value[`form[${index}].accountId`] = [
-          { required: true, message: '账户不能为空', trigger: ['blur', 'change'] }
-        ];
-        rules.value[`form[${index}].currentBalance`] = [
-          { required: true, message: '收入金额不能为空', trigger: 'blur' },
-          {
-            validator: (rule, value, callback) => {
-              if (value === '' || value <= 0) {
-                callback(new Error('收入金额必须大于 0'));
-              } else {
-                callback();
-              }
-            },
-            trigger: 'blur'
-          }
-        ]
-      });
-    };
 /** 取消按钮 */
 function cancel() {
   open.value = false;
@@ -519,4 +447,7 @@ getUserList();
 .pt-4 {
   padding-top: 4px;
 }
+/* ::v-deep .el-table .el-table__cell {
+  padding: 0
+} */
 </style>

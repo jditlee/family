@@ -256,13 +256,16 @@ export function getCellStyle(value) {
   if (value < 0) {
     // 负数越大，绿色越深
     const greenIntensity = Math.round(255 * (1 - normalizedValue));
+    // return { background: `rgb(0, ${greenIntensity}, 0)`, color: 'black'  };
     return { color: `rgb(0, ${greenIntensity}, 0)` };
   } else if (value > 0) {
     // 正数越大，红色越深
     const redIntensity = Math.round(255 * normalizedValue);
+    // return { background: `rgb(${redIntensity}, 0, 0)`, color: 'black' };
     return { color: `rgb(${redIntensity}, 0, 0)` };
   } else {
     // 值为 0 时，使用默认颜色
+    // return { background: 'white', color: 'black' };
     return { color: 'black' };
   }
 }
