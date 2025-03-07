@@ -6,11 +6,12 @@
       </div>
       <div class="content">
         <div class="contentTitle">
-          早安，
-          {{ currentUser.name }}
-          ，祝你开心每一天！
+          您好，
+          {{ state.user.userName }}
+          ，每日一言 》》 <span v-if="!sentence">加载中...</span>
+  <span v-else>{{ sentence }}</span>
         </div>
-        <div>{{ currentUser.title }} |{{ currentUser.group }}</div>
+        <div v-if="state.user.dept">{{ state.user.dept.deptName }} |{{ state.postGroup }}</div>
       </div>
       <div class="extraContent">
         <div class="statItem">
@@ -31,17 +32,17 @@
           <a-card
             class="projectList"
             :style="{ marginBottom: '24px' }"
-            title="进行中的项目"
+            title="通知公告"
             :bordered="false"
             :loading="false"
             :body-style="{ padding: 0 }"
           >
             <template #extra>
-              <a href=""> <span style="color: #1890ff">全部项目</span> </a>
+              <a href=""> <span style="color: #1890ff">全部》》</span> </a>
             </template>
             <a-card-grid
               v-for="item in projectNotice"
-              :key="item.id"
+              :key="item.noticeId"
               class="projectGrid"
             >
               <a-card
@@ -49,22 +50,22 @@
                 style="box-shadow: none"
                 :bordered="false"
               >
-                <a-card-meta :description="item.description" class="w-full">
+                <a-card-meta :description="item.noticeContent" class="w-full">
                   <template #title>
                     <div class="cardTitle">
                       <a-avatar size="small" :src="item.logo" />
                       <a :href="item.href">
-                        {{ item.title }}
+                        {{ item.noticeTitle }}
                       </a>
                     </div>
                   </template>
                 </a-card-meta>
                 <div class="projectItemContent">
                   <a :href="item.memberLink">
-                    {{ item.member || "" }}
+                    {{ item.createBy || "" }}
                   </a>
-                  <span class="datetime" ml-2 :title="item.updatedAt">
-                    {{ item.updatedAt }}
+                  <span class="datetime" ml-2 :title="item.createTime">
+                    {{ item.createTime }}
                   </span>
                 </div>
               </a-card>
@@ -79,30 +80,23 @@
           >
             <a-list :data-source="activities" class="activitiesList">
               <template #renderItem="{ item }">
-                <a-list-item :key="item.id">
+                <a-list-item :key="item.operId">
                   <a-list-item-meta>
                     <template #title>
                       <span>
-                        <a class="username">{{ item.user.name }}</a
-                        >&nbsp;
+                        <a class="username">{{ item.operName }}</a>&nbsp;
                         <span class="event">
-                          <span>{{ item.template1 }}</span
-                          >&nbsp;
+                          <span>在</span>&nbsp;
                           <a href="" style="color: #1890ff">
-                            {{ item?.group?.name }} </a
-                          >&nbsp; <span>{{ item.template2 }}</span
-                          >&nbsp;
-                          <a href="" style="color: #1890ff">
-                            {{ item?.project?.name }}
-                          </a>
+                            {{ item.title }} </a>&nbsp; 中进行了<span>{{ operTypeMap[item.operatorType] || item.operatorType }}</span>&nbsp;操作
                         </span>
                       </span>
                     </template>
-                    <template #avatar>
-                      <a-avatar :src="item.user.avatar" />
-                    </template>
+<!--                    <template #avatar>-->
+<!--                      <a-avatar :src="item.user.avatar" />-->
+<!--                    </template>-->
                     <template #description>
-                      <span class="datetime" :title="item.updatedAt">
+                      <span class="datetime" :title="item.operTime">
                         {{ item.updatedAt }}
                       </span>
                     </template>
@@ -191,197 +185,88 @@ export default {
 <script setup>
 import { Radar } from "@antv/g2plot";
 import EditableLinkGroup from "./editable-link-group.vue";
+import {getUserListName, getUserProfile} from "@/api/system/user.js";
+import { listNotice } from "@/api/system/notice";
+import { onMounted, ref } from 'vue';
+import axios from "axios";
+import { list } from "@/api/monitor/operlog";
+const { proxy } = getCurrentInstance();
+const { sys_oper_type, sys_common_status } = proxy.useDict("sys_oper_type","sys_common_status");
+
+// 添加句子响应式变量
+const sentence = ref('');
+const operTypeMap = computed(() =>
+  sys_oper_type.value.reduce((acc, curr) => {
+    acc[curr.value] = curr.label;
+    return acc;
+  }, {})
+);
+// 获取句子方法
+const fetchSentence = async () => {
+  try {
+    const response = await axios.get('https://v1.hitokoto.cn/?encode=text');
+    sentence.value = response.data;
+  } catch (error) {
+    console.error('请求句子失败', error);
+    sentence.value = '祝你开心每一天！'; // 失败时使用默认值
+  }
+};
 
 defineOptions({
   name: "DashBoard",
 });
+const state = reactive({
+  user: {},
+  roleGroup: {},
+  postGroup: {}
+});
 
 const currentUser = {
   avatar: "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
-  name: "吴彦祖",
-  userid: "00000001",
+  name: state.user.userName,
+  userid: state.user.id,
   email: "antdesign@alipay.com",
   signature: "海纳百川，有容乃大",
   title: "交互专家",
   group: "蚂蚁金服－某某某事业群－某某平台部－某某技术部－UED",
 };
 
-const projectNotice = [
-  {
-    id: "xxx1",
-    title: "Alipay",
-    logo: "https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png",
-    description: "那是一种内在的东西，他们到达不了，也无法触及的",
-    updatedAt: "几秒前",
-    member: "科学搬砖组",
-    href: "",
-    memberLink: "",
-  },
-  {
-    id: "xxx2",
-    title: "Angular",
-    logo: "https://gw.alipayobjects.com/zos/rmsportal/zOsKZmFRdUtvpqCImOVY.png",
-    description: "希望是一个好东西，也许是最好的，好东西是不会消亡的",
-    updatedAt: "6 年前",
-    member: "全组都是吴彦祖",
-    href: "",
-    memberLink: "",
-  },
-  {
-    id: "xxx3",
-    title: "Ant Design",
-    logo: "https://gw.alipayobjects.com/zos/rmsportal/dURIMkkrRFpPgTuzkwnB.png",
-    description: "城镇中有那么多的酒馆，她却偏偏走进了我的酒馆",
-    updatedAt: "几秒前",
-    member: "中二少女团",
-    href: "",
-    memberLink: "",
-  },
-  {
-    id: "xxx4",
-    title: "Ant Design Pro",
-    logo: "https://gw.alipayobjects.com/zos/rmsportal/sfjbOqnsXXJgNCjCzDBL.png",
-    description: "那时候我只会想自己想要什么，从不想自己拥有什么",
-    updatedAt: "6 年前",
-    member: "程序员日常",
-    href: "",
-    memberLink: "",
-  },
-  {
-    id: "xxx5",
-    title: "Bootstrap",
-    logo: "https://gw.alipayobjects.com/zos/rmsportal/siCrBXXhmvTQGWPNLBow.png",
-    description:
-      "凛冬将至",
-    updatedAt: "6 年前",
-    member: "高逼格设计天团",
-    href: "",
-    memberLink: "",
-  },
-  {
-    id: "xxx6",
-    title: "React",
-    logo: "https://gw.alipayobjects.com/zos/rmsportal/kZzEzemZyKLKFsojXItE.png",
-    description: "生命就像一盒巧克力，结果往往出人意料",
-    updatedAt: "6 年前",
-    member: "骗你来学计算机",
-    href: "",
-    memberLink: "",
-  },
-];
+const projectNotice = ref([]);
+//     [
+//   {
+//     id: "xxx1",
+//     title: "Alipay",
+//     logo: "https://gw.alipayobjects.com/zos/rmsportal/WdGqmHpayyMjiEhcKoVE.png",
+//     description: "那是一种内在的东西，他们到达不了，也无法触及的",
+//     updatedAt: "几秒前",
+//     member: "科学搬砖组",
+//     href: "",
+//     memberLink: "",
+//   },
+// ];
 
-const activities = [
-  {
-    id: "trend-1",
-    updatedAt: "几秒前",
-    user: {
-      name: "曲丽丽",
-      avatar:
-        "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
-    },
-    group: {
-      name: "高逼格设计天团",
-      link: "http://github.com/",
-    },
-    project: {
-      name: "六月迭代",
-      link: "http://github.com/",
-    },
-    template1: "在",
-    template2: "新建项目",
-  },
-  {
-    id: "trend-2",
-    updatedAt: "几秒前",
-    user: {
-      name: "付小小",
-      avatar:
-        "https://gw.alipayobjects.com/zos/rmsportal/cnrhVkzwxjPwAaCfPbdc.png",
-    },
-    group: {
-      name: "高逼格设计天团",
-      link: "http://github.com/",
-    },
-    project: {
-      name: "六月迭代",
-      link: "http://github.com/",
-    },
-    template1: "在",
-    template2: "新建项目",
-  },
-  {
-    id: "trend-3",
-    updatedAt: "几秒前",
-    user: {
-      name: "林东东",
-      avatar:
-        "https://gw.alipayobjects.com/zos/rmsportal/gaOngJwsRYRaVAuXXcmB.png",
-    },
-    group: {
-      name: "中二少女团",
-      link: "http://github.com/",
-    },
-    project: {
-      name: "六月迭代",
-      link: "http://github.com/",
-    },
-    template1: "在",
-    template2: "新建项目",
-  },
-  {
-    id: "trend-4",
-    updatedAt: "几秒前",
-    user: {
-      name: "周星星",
-      avatar:
-        "https://gw.alipayobjects.com/zos/rmsportal/WhxKECPNujWoWEFNdnJE.png",
-    },
-    group: {
-      name: "5 月日常迭代",
-      link: "http://github.com/",
-    },
-    template1: "将",
-    template2: "更新至已发布状态",
-  },
-  {
-    id: "trend-5",
-    updatedAt: "几秒前",
-    user: {
-      name: "朱偏右",
-      avatar:
-        "https://gw.alipayobjects.com/zos/rmsportal/ubnKSIfAJTxIgXOKlciN.png",
-    },
-    group: {
-      name: "工程效能",
-      link: "http://github.com/",
-    },
-    project: {
-      name: "留言",
-      link: "http://github.com/",
-    },
-    template1: "在",
-    template2: "发布了",
-  },
-  {
-    id: "trend-6",
-    updatedAt: "几秒前",
-    user: {
-      name: "乐哥",
-      avatar:
-        "https://gw.alipayobjects.com/zos/rmsportal/jZUIxmJycoymBprLOUbT.png",
-    },
-    group: {
-      name: "程序员日常",
-      link: "http://github.com/",
-    },
-    project: {
-      name: "品牌迭代",
-      link: "http://github.com/",
-    },
-    template1: "在",
-    template2: "新建项目",
-  },
-];
+const activities =  ref([]);
+//     [
+//   {
+//     id: "trend-1",
+//     updatedAt: "几秒前",
+//     user: {
+//       name: "曲丽丽",
+//       avatar:
+//         "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
+//     },
+//     group: {
+//       name: "高逼格设计天团",
+//       link: "http://github.com/",
+//     },
+//     project: {
+//       name: "六月迭代",
+//       link: "http://github.com/",
+//     },
+//     template1: "在",
+//     template2: "新建项目",
+//   },
+// ];
 
 const radarContainer = ref();
 const radarData = [
@@ -463,6 +348,7 @@ const radarData = [
 ];
 let radar;
 onMounted(() => {
+  fetchSentence();
   radar = new Radar(radarContainer.value, {
     data: radarData,
     xField: "label",
@@ -482,6 +368,36 @@ onMounted(() => {
 onBeforeUnmount(() => {
   radar?.destroy?.();
 });
+
+//获取通知列表
+function getNoticeList() {
+  listNotice({pageNum: 1, pageSize: 6}).then(response => {
+    projectNotice.value = response.rows;
+  })
+}
+getNoticeList()
+
+// 获取当前用户信息
+function getUser() {
+  getUserProfile().then(response => {
+    state.user = response.data;
+    state.roleGroup = response.roleGroup;
+    state.postGroup = response.postGroup;
+  });
+};
+
+getUser();
+
+//获取通知列表
+function getLogList() {
+  list({pageNum: 1, pageSize: 10}).then(response => {
+    activities.value = response.rows;
+  })
+}
+getLogList()
+
+
+
 </script>
 
 <style scoped lang="less">
