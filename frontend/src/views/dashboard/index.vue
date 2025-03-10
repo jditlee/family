@@ -2,16 +2,18 @@
   <div>
     <div class="pageHeaderContent">
       <div class="avatar">
-        <a-avatar size="large" :src="currentUser.avatar" />
+        <a-avatar size="large" :src="userStore.avatar" />
       </div>
       <div class="content">
         <div class="contentTitle">
-          您好，
+          早上好，
           {{ state.user.userName }}
-          ，每日一言 》》 <span v-if="!sentence">加载中...</span>
-  <span v-else>{{ sentence }}</span>
         </div>
-        <div v-if="state.user.dept">{{ state.user.dept.deptName }} |{{ state.postGroup }}</div>
+        <div>
+          <span></span>
+          <span v-if="!sentence">加载中...</span>
+          <span v-else>{{ sentence }}</span></div>
+<!--        <div v-if="state.user.dept">{{ state.user.dept.deptName }} |{{ state.postGroup }}</div>-->
       </div>
       <div class="extraContent">
         <div class="statItem">
@@ -50,10 +52,11 @@
                 style="box-shadow: none"
                 :bordered="false"
               >
-                <a-card-meta :description="item.noticeContent" class="w-full">
+                <a-card-meta class="w-full">
+                  <template #description><div v-html="item.noticeContent" class="p-notice"></div></template>
                   <template #title>
                     <div class="cardTitle">
-                      <a-avatar size="small" :src="item.logo" />
+<!--                      <a-avatar size="small" :src="item.logo" />-->
                       <a :href="item.href">
                         {{ item.noticeTitle }}
                       </a>
@@ -190,10 +193,12 @@ import { listNotice } from "@/api/system/notice";
 import { onMounted, ref } from 'vue';
 import axios from "axios";
 import { list } from "@/api/monitor/operlog";
+import useUserStore from "@/store/modules/user.js";
 const { proxy } = getCurrentInstance();
 const { sys_oper_type, sys_common_status } = proxy.useDict("sys_oper_type","sys_common_status");
 
 // 添加句子响应式变量
+const userStore = useUserStore()
 const sentence = ref('');
 const operTypeMap = computed(() =>
   sys_oper_type.value.reduce((acc, curr) => {
@@ -531,19 +536,19 @@ getLogList()
 
 .projectList {
   :deep(.ant-card-meta-description) {
-    height: 44px;
+    height: 100px;
     overflow: hidden;
     color: rgba(0, 0, 0, 0.45);
-    line-height: 22px;
+    line-height: 12px;
   }
   .cardTitle {
     font-size: 0;
     a {
       display: inline-block;
-      height: 24px;
+      height: 26px;
       margin-left: 12px;
       color: rgba(0, 0, 0, 0.85);
-      font-size: 14px;
+      font-size: 16px;
       line-height: 24px;
       vertical-align: top;
       &:hover {
@@ -651,4 +656,20 @@ getLogList()
     }
   }
 }
+//.p-notice {
+//  //p {
+//    display: inline-block;
+//    white-space: nowrap;
+//    margin: 0;
+//    padding: 0;
+//  font-size: inherit;     /* 继承父级字体大小 */
+//  font-weight: normal;    /* 清除默认粗体效果 */
+//  line-height: normal;    /* 重置行高 */
+//  color: inherit;         /* 继承父级字体颜色 */
+//  /* 可选：溢出处理 */
+//  overflow: hidden;
+//  text-overflow: ellipsis; /* 文字溢出显示省略号 */
+//  max-width: 200px;
+//  //}
+//}
 </style>
