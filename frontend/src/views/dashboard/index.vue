@@ -6,8 +6,8 @@
       </div>
       <div class="content">
         <div class="contentTitle">
-          早上好，
-          {{ state.user.userName }}
+          您好，
+          {{ state.user.nickName }}
         </div>
         <div>
           <span></span>
