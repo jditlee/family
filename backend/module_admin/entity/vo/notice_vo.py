@@ -15,7 +15,7 @@ class NoticeModel(BaseModel):
 
     notice_id: Optional[int] = Field(default=None, description='公告ID')
     notice_title: Optional[str] = Field(default=None, description='公告标题')
-    notice_type: Optional[Literal['1', '2']] = Field(default=None, description='公告类型（1通知 2公告）')
+    notice_type: Optional[str] = Field(default=None, description='公告类型（1通知 2公告）')
     notice_content: Optional[bytes] = Field(default=None, description='公告内容')
     status: Optional[Literal['0', '1']] = Field(default=None, description='公告状态（0正常 1关闭）')
     create_by: Optional[str] = Field(default=None, description='创建者')
