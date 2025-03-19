@@ -2,7 +2,7 @@
   <div>
     <div class="pageHeaderContent">
       <div class="avatar">
-        <a-avatar size="large" :src="userStore.avatar" />
+        <a-avatar size="large" :src="userStore.avatar"/>
       </div>
       <div class="content">
         <div class="contentTitle">
@@ -13,17 +13,17 @@
           <span></span>
           <span v-if="!sentence">加载中...</span>
           <span v-else>{{ sentence }}</span></div>
-<!--        <div v-if="state.user.dept">{{ state.user.dept.deptName }} |{{ state.postGroup }}</div>-->
+        <div v-if="state.user.dept">{{ state.user.dept.deptName }} |{{ state.postGroup }}</div>
       </div>
       <div class="extraContent">
         <div class="statItem">
-          <a-statistic title="项目数" :value="56" />
+          <a-statistic title="账户数" :value="12"/>
         </div>
         <div class="statItem">
-          <a-statistic title="团队内排名" :value="8" suffix="/ 24" />
+          <a-statistic title="资产积累进度" :value="sum_current" suffix="/ 1000000"/>
         </div>
         <div class="statItem">
-          <a-statistic title="项目访问" :value="2223" />
+          <a-statistic title="进度百分比" :value="sum_current/1000000*100" suffix="%"/>
         </div>
       </div>
     </div>
@@ -32,31 +32,33 @@
       <a-row :gutter="24">
         <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24">
           <a-card
-            class="projectList"
-            :style="{ marginBottom: '24px' }"
-            title="通知公告"
-            :bordered="false"
-            :loading="false"
-            :body-style="{ padding: 0 }"
+              class="projectList"
+              :style="{ marginBottom: '24px' }"
+              title="通知公告"
+              :bordered="false"
+              :loading="false"
+              :body-style="{ padding: 0 }"
           >
             <template #extra>
               <a href=""> <span style="color: #1890ff">全部》》</span> </a>
             </template>
             <a-card-grid
-              v-for="item in projectNotice"
-              :key="item.noticeId"
-              class="projectGrid"
+                v-for="item in projectNotice"
+                :key="item.noticeId"
+                class="projectGrid"
             >
               <a-card
-                :body-style="{ padding: 0 }"
-                style="box-shadow: none"
-                :bordered="false"
+                  :body-style="{ padding: 0 }"
+                  style="box-shadow: none"
+                  :bordered="false"
               >
                 <a-card-meta class="w-full">
-                  <template #description><div v-html="item.noticeContent" class="p-notice"></div></template>
+                  <template #description>
+                    <div v-html="item.noticeContent" class="p-notice"></div>
+                  </template>
                   <template #title>
                     <div class="cardTitle">
-<!--                      <a-avatar size="small" :src="item.logo" />-->
+                      <!--                      <a-avatar size="small" :src="item.logo" />-->
                       <a :href="item.href">
                         {{ item.noticeTitle }}
                       </a>
@@ -75,11 +77,11 @@
             </a-card-grid>
           </a-card>
           <a-card
-            :body-style="{ padding: 0 }"
-            :bordered="false"
-            class="activeCard"
-            title="动态"
-            :loading="false"
+              :body-style="{ padding: 0 }"
+              :bordered="false"
+              class="activeCard"
+              title="动态"
+              :loading="false"
           >
             <a-list :data-source="activities" class="activitiesList">
               <template #renderItem="{ item }">
@@ -91,13 +93,15 @@
                         <span class="event">
                           <span>在</span>&nbsp;
                           <a href="" style="color: #1890ff">
-                            {{ item.title }} </a>&nbsp; 中进行了<span>{{ operTypeMap[item.operatorType] || item.operatorType }}</span>&nbsp;操作
+                            {{
+                              item.title
+                            }} </a>&nbsp; 中进行了<span>{{ operTypeMap[item.operatorType] || item.operatorType }}</span>&nbsp;操作
                         </span>
                       </span>
                     </template>
-<!--                    <template #avatar>-->
-<!--                      <a-avatar :src="item.user.avatar" />-->
-<!--                    </template>-->
+                    <!--                    <template #avatar>-->
+                    <!--                      <a-avatar :src="item.user.avatar" />-->
+                    <!--                    </template>-->
                     <template #description>
                       <span class="datetime" :title="item.operTime">
                         {{ item.updatedAt }}
@@ -111,36 +115,36 @@
         </a-col>
         <a-col :xl="8" :lg="24" :md="24" :sm="24" :xs="24">
           <a-card
-            :style="{ marginBottom: '24px' }"
-            title="快速开始 / 便捷导航"
-            :bordered="false"
-            :body-style="{ padding: 0 }"
+              :style="{ marginBottom: '24px' }"
+              title="快速开始 / 便捷导航"
+              :bordered="false"
+              :body-style="{ padding: 0 }"
           >
-            <EditableLinkGroup />
+            <EditableLinkGroup/>
           </a-card>
           <a-card
-            :style="{ marginBottom: '24px' }"
-            :bordered="false"
-            title="XX 指数"
+              :style="{ marginBottom: '24px' }"
+              :bordered="false"
+              title="XX 指数"
           >
             <div class="chart">
-              <div ref="radarContainer" />
+              <div ref="radarContainer"/>
             </div>
           </a-card>
           <a-card
-            :body-style="{ paddingTop: '12px', paddingBottom: '12px' }"
-            :bordered="false"
-            title="团队"
+              :body-style="{ paddingTop: '12px', paddingBottom: '12px' }"
+              :bordered="false"
+              title="团队"
           >
             <div class="members">
               <a-row :gutter="48">
                 <a-col
-                  v-for="item in projectNotice"
-                  :key="`members-item-${item.id}`"
-                  :span="12"
+                    v-for="item in projectNotice"
+                    :key="`members-item-${item.id}`"
+                    :span="12"
                 >
                   <a :href="item.href">
-                    <a-avatar :src="item.logo" size="small" />
+                    <a-avatar :src="item.logo" size="small"/>
                     <span class="member">{{ item.member }}</span>
                   </a>
                 </a-col>
@@ -186,25 +190,27 @@ export default {
 
 
 <script setup>
-import { Radar } from "@antv/g2plot";
+import {Radar} from "@antv/g2plot";
 import EditableLinkGroup from "./editable-link-group.vue";
 import {getUserListName, getUserProfile} from "@/api/system/user.js";
-import { listNotice } from "@/api/system/notice";
-import { onMounted, ref } from 'vue';
+import {listNotice} from "@/api/system/notice";
+import {onMounted, ref} from 'vue';
 import axios from "axios";
-import { list } from "@/api/monitor/operlog";
+import {list} from "@/api/monitor/operlog";
+import {sumTransactions} from "@/api/money/account_transactions.js";
 import useUserStore from "@/store/modules/user.js";
-const { proxy } = getCurrentInstance();
-const { sys_oper_type, sys_common_status } = proxy.useDict("sys_oper_type","sys_common_status");
+
+const {proxy} = getCurrentInstance();
+const {sys_oper_type, sys_common_status} = proxy.useDict("sys_oper_type", "sys_common_status");
 
 // 添加句子响应式变量
 const userStore = useUserStore()
 const sentence = ref('');
 const operTypeMap = computed(() =>
-  sys_oper_type.value.reduce((acc, curr) => {
-    acc[curr.value] = curr.label;
-    return acc;
-  }, {})
+    sys_oper_type.value.reduce((acc, curr) => {
+      acc[curr.value] = curr.label;
+      return acc;
+    }, {})
 );
 // 获取句子方法
 const fetchSentence = async () => {
@@ -250,7 +256,7 @@ const projectNotice = ref([]);
 //   },
 // ];
 
-const activities =  ref([]);
+const activities = ref([]);
 //     [
 //   {
 //     id: "trend-1",
@@ -272,6 +278,8 @@ const activities =  ref([]);
 //     template2: "新建项目",
 //   },
 // ];
+
+const sum_current = ref();
 
 const radarContainer = ref();
 const radarData = [
@@ -380,6 +388,7 @@ function getNoticeList() {
     projectNotice.value = response.rows;
   })
 }
+
 getNoticeList()
 
 // 获取当前用户信息
@@ -399,8 +408,17 @@ function getLogList() {
     activities.value = response.rows;
   })
 }
+
 getLogList()
 
+//获取通知列表
+function getSumTransactions() {
+  sumTransactions().then(response => {
+    sum_current.value = response.data;
+  })
+}
+
+getSumTransactions()
 
 
 </script>
@@ -432,9 +450,11 @@ getLogList()
 
 .activitiesList {
   padding: 0 24px 8px 24px;
+
   .username {
     color: rgba(0, 0, 0, 0.65);
   }
+
   .event {
     font-weight: normal;
   }
@@ -445,8 +465,10 @@ getLogList()
   padding: 12px;
   margin-bottom: 24px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+
   .avatar {
     flex: 0 1 72px;
+
     & > span {
       display: block;
       width: 72px;
@@ -454,6 +476,7 @@ getLogList()
       border-radius: 72px;
     }
   }
+
   .content {
     position: relative;
     top: 4px;
@@ -461,6 +484,7 @@ getLogList()
     margin-left: 24px;
     color: rgba(0, 0, 0, 0.45);
     line-height: 22px;
+
     .contentTitle {
       margin-bottom: 12px;
       color: rgba(0, 0, 0, 0.85);
@@ -476,26 +500,31 @@ getLogList()
 
   float: right;
   white-space: nowrap;
+
   .statItem {
     position: relative;
     display: inline-block;
     padding: 0 32px;
+
     > p:first-child {
       margin-bottom: 4px;
       color: rgba(0, 0, 0, 0.45);
       font-size: 14px;
       line-height: 22px;
     }
+
     > p {
       margin: 0;
       color: rgba(0, 0, 0, 0.85);
       font-size: 30px;
       line-height: 38px;
+
       > span {
         color: rgba(0, 0, 0, 0.45);
         font-size: 20px;
       }
     }
+
     &::after {
       position: absolute;
       top: 8px;
@@ -505,8 +534,10 @@ getLogList()
       background-color: #e8e8e8;
       content: "";
     }
+
     &:last-child {
       padding-right: 0;
+
       &::after {
         display: none;
       }
@@ -522,12 +553,14 @@ getLogList()
     color: rgba(0, 0, 0, 0.65);
     transition: all 0.3s;
     .textOverflow();
+
     .member {
       margin-left: 12px;
       font-size: 14px;
       line-height: 24px;
       vertical-align: top;
     }
+
     &:hover {
       color: #1890ff;
     }
@@ -541,8 +574,10 @@ getLogList()
     color: rgba(0, 0, 0, 0.45);
     line-height: 12px;
   }
+
   .cardTitle {
     font-size: 0;
+
     a {
       display: inline-block;
       height: 26px;
@@ -551,14 +586,17 @@ getLogList()
       font-size: 16px;
       line-height: 24px;
       vertical-align: top;
+
       &:hover {
         color: #1890ff;
       }
     }
   }
+
   .projectGrid {
     width: 33.33%;
   }
+
   .projectItemContent {
     display: flex;
     flex-basis: 100%;
@@ -568,15 +606,18 @@ getLogList()
     font-size: 12px;
     line-height: 20px;
     .textOverflow();
+
     a {
       display: inline-block;
       flex: 1 1 0;
       color: rgba(0, 0, 0, 0.45);
       .textOverflow();
+
       &:hover {
         color: #1890ff;
       }
     }
+
     .datetime {
       flex: 0 0 auto;
       float: right;
@@ -593,11 +634,14 @@ getLogList()
   .activeCard {
     margin-bottom: 24px;
   }
+
   .members {
     margin-bottom: 0;
   }
+
   .extraContent {
     margin-left: -44px;
+
     .statItem {
       padding: 0 16px;
     }
@@ -608,15 +652,19 @@ getLogList()
   .activeCard {
     margin-bottom: 24px;
   }
+
   .members {
     margin-bottom: 0;
   }
+
   .extraContent {
     float: none;
     margin-right: 0;
+
     .statItem {
       padding: 0 16px;
       text-align: left;
+
       &::after {
         display: none;
       }
@@ -628,6 +676,7 @@ getLogList()
   .extraContent {
     margin-left: -16px;
   }
+
   .projectList {
     .projectGrid {
       width: 50%;
@@ -638,10 +687,12 @@ getLogList()
 @media screen and (max-width: 576px) {
   .pageHeaderContent {
     display: block;
+
     .content {
       margin-left: 0;
     }
   }
+
   .extraContent {
     .statItem {
       float: none;
@@ -656,6 +707,7 @@ getLogList()
     }
   }
 }
+
 //.p-notice {
 //  //p {
 //    display: inline-block;

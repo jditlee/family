@@ -3,7 +3,8 @@ from config.constant import CommonConstant
 from exceptions.exception import ServiceException
 from module_admin.dao.account_transactions_dao import AccountTransactionsDao
 from module_admin.entity.vo.common_vo import CrudResponseModel
-from module_admin.entity.vo.account_transactions_vo import DeleteAccountTransactionsModel, AccountTransactionsModel, AccountTransactionsPageQueryModel
+from module_admin.entity.vo.account_transactions_vo import DeleteAccountTransactionsModel, AccountTransactionsModel, \
+    AccountTransactionsPageQueryModel
 from utils.common_util import SqlalchemyUtil, CamelCaseUtil
 
 
@@ -11,6 +12,11 @@ class AccountTransactionsService:
     """
     账户流水记录管理模块服务层
     """
+
+    @classmethod
+    async def get_latest_balance_sum_service(cls, query_db: AsyncSession):
+        res = await AccountTransactionsDao.get_latest_balance_sum(query_db)
+        return res
 
     @classmethod
     async def get_account_transactions_list_services(
@@ -24,7 +30,9 @@ class AccountTransactionsService:
         :param is_page: 是否开启分页
         :return: 账户流水记录列表信息对象
         """
-        account_transactions_list_result = await AccountTransactionsDao.get_account_transactions_list(query_db, query_object, is_page)
+        account_transactions_list_result = await AccountTransactionsDao.get_account_transactions_list(query_db,
+                                                                                                      query_object,
+                                                                                                      is_page)
 
         return account_transactions_list_result
 
@@ -68,7 +76,8 @@ class AccountTransactionsService:
             raise ServiceException(message='账户流水记录不存在')
 
     @classmethod
-    async def delete_account_transactions_services(cls, query_db: AsyncSession, page_object: DeleteAccountTransactionsModel):
+    async def delete_account_transactions_services(cls, query_db: AsyncSession,
+                                                   page_object: DeleteAccountTransactionsModel):
         """
         删除service
 
@@ -80,7 +89,8 @@ class AccountTransactionsService:
             account_transactions_id_list = page_object.ids.split(',')
             try:
                 for account_transactions_id in account_transactions_id_list:
-                    await AccountTransactionsDao.delete_account_transactions_dao(query_db, AccountTransactionsModel(id=account_transactions_id))
+                    await AccountTransactionsDao.delete_account_transactions_dao(query_db, AccountTransactionsModel(
+                        id=account_transactions_id))
                 await query_db.commit()
                 return CrudResponseModel(is_success=True, message='删除成功')
             except Exception as e:

@@ -15,6 +15,23 @@ class AccountTransactionsDao:
     """
 
     @classmethod
+    async def get_latest_balance_sum(cls, db: AsyncSession):
+        subquery = select(
+            func.date(func.max(AccountTransactions.create_time))
+        ).scalar_subquery()
+
+        # 主查询：计算最新日期的余额总和
+        stmt = select(
+            func.sum(AccountTransactions.current_balance)
+        ).where(
+            func.date(AccountTransactions.create_time) == subquery
+        )
+
+        # 执行异步查询
+        result = await db.execute(stmt)
+        return result.scalar() or 0.0
+
+    @classmethod
     async def get_account_transactions_detail_by_id(cls, db: AsyncSession, id: int):
         """
         根据主键id获取详细信息
@@ -86,7 +103,6 @@ class AccountTransactionsDao:
 
         return account_transactions_list
 
-
     @classmethod
     async def add_account_transactions_dao(cls, db: AsyncSession, account_transactions: AccountTransactionsModel):
         """
@@ -102,7 +118,6 @@ class AccountTransactionsDao:
 
         return db_account_transactions
 
-
     @classmethod
     async def edit_account_transactions_dao(cls, db: AsyncSession, account_transactions: dict):
         """
@@ -113,7 +128,6 @@ class AccountTransactionsDao:
         :return:
         """
         await db.execute(update(AccountTransactions), [account_transactions])
-
 
     @classmethod
     async def delete_account_transactions_dao(cls, db: AsyncSession, account_transactions: AccountTransactionsModel):
